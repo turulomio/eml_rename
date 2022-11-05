@@ -61,15 +61,18 @@ class EmlFile():
     #Returns [(b'This is a subject', 'iso-8859-1')], codification can be None
     def parse_subject(self, subject):
         arr=decode_header(subject)
-        if len(arr)==1:
-            first=arr[0]
-            codification="utf-8" if first[1] is None else first[1]
-            if isinstance(first[0], bytes):
-                return first[0].decode(codification)
-            elif isinstance(first[0], str):
-                return first[0]
-        self.error_message=_("Error parsing subject") + str(arr)
-        return subject
+        r=""
+        try:
+            for stream, codification in arr:
+                codification="utf-8" if codification is None else codification
+                if isinstance(stream, bytes):
+                    r=r+stream.decode(codification)
+                elif isinstance(stream,  str):
+                    r=r+stream
+            return r
+        except:
+            self.error_message=_("Error parsing subject") + str(arr)
+            return subject
                 
     def final_name(self, length):
         r= f"{dtaware2string(self.dt,  '%Y%m%d %H%M')} [{self.from_}] {self.subject}"[:length-4] +".eml"
@@ -132,7 +135,7 @@ class EmlFile():
 
     def report(self, force, length, save):
         if self.error_message!="":
-            aclaration=_("[Won't be renamed]") if save is False else _("[Not Renamed]") 
+            aclaration=_("[Error detected. Won't be renamed]") if save is False else _("[Error detected. Not Renamed]") 
             return  red(self.error_message)+  " " + blue(aclaration)
         if self.will_be_renamed(force):
             aclaration=_("[Will be renamed]") if save is False else _("[Renamed]") 
@@ -144,6 +147,7 @@ class EmlFile():
     def write(self, force, length):
         if self.will_be_renamed(force):
             rename(self.path, self.final_name(length))
+            
 
 
 def main():
@@ -168,18 +172,21 @@ def eml_rename(force, length, save):
     emls= sorted(emls, key=lambda x: x.path, reverse=False)
     
     #Process files
+    number_to_be_renamed=0
     for i, o in enumerate(emls):
 
         print(f"-- ({i+1}/{len(emls)}) -----------------------------------------")
         print(o.path)
         print(o.report(force, length, save))
+        if o.will_be_renamed(force):
+            number_to_be_renamed+=1
         if save is True:
             o.write(force, length)
             
     print("")
     print("")
     if save is True:
-        print(white(_("Files have been renamed.")))
+        print(white(_("{0} files were renamed.").format(number_to_be_renamed)))
     else:
-        print(white(_("Process has been simulated, files haven't been renamed. Use --save to execute it.")))
+        print(white(_("Process was simulated, files weren't renamed. Use --save to rename {0} files.").format(number_to_be_renamed)))
 
