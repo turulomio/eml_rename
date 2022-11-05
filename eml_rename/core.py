@@ -179,7 +179,7 @@ def eml_rename(force, length, save):
     print("")
     print("")
     if save is True:
-        print(white(_("Files have been renamed")))
+        print(white(_("Files have been renamed.")))
     else:
-        print(white(_("Process has been simulated, files haven't been renamed.")))
+        print(white(_("Process has been simulated, files haven't been renamed. Use --save to execute it.")))
 
