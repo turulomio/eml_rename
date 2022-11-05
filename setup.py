@@ -22,6 +22,7 @@ class Reusing(Command):
         if self.local is False:
             from github import download_from_github
             download_from_github('turulomio','reusingcode','python/github.py', 'eml_rename/reusing/')
+            download_from_github('turulomio','reusingcode','python/datetime_functions.py', 'eml_rename/reusing/')
 
 ## Class to define doc command
 class Translate(Command):

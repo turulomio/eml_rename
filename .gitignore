@@ -2,3 +2,6 @@
 build/
 dist/
 eml_rename.egg-info/
+eml_rename/locale/*.po~
+eml_rename/reusing/__pycache__/
+*.eml
