@@ -1,0 +1,6 @@
+include LICENSE.txt  *.py
+recursive-include locale *.po 
+recursive-include eml_rename *.py *.mo *
+recursive-include eml_rename/reusing *.py
+prune __pycache__
+global-exclude *.pyc

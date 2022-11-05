@@ -1,0 +1,61 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-10-22 07:47+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "You pressed 'Ctrl+C', exiting..."
+msgstr ""
+
+msgid "Developed by Mariano Muñoz 2022-{}"
+msgstr ""
+
+msgid "Launches a Telegram bot to start sshd daemon on demand"
+msgstr ""
+
+msgid "Debug program information"
+msgstr ""
+
+#, python-brace-format
+msgid "You must set and configure {0}"
+msgstr ""
+
+#, python-brace-format
+msgid "You can find and rename '{0}.default' from source code"
+msgstr ""
+
+msgid "Starting manager"
+msgstr ""
+
+msgid "Current system datetime is wrong. I will try again after 10 seconds"
+msgstr ""
+
+msgid "Internet detected"
+msgstr ""
+
+msgid "Internet wasn't detected. I will try again after 10 seconds"
+msgstr ""
+
+msgid "Stopping manager"
+msgstr ""
+
+#, python-brace-format
+msgid "{0}: sshd daemon was launched with command '{1}'."
+msgstr ""
+
+#, python-brace-format
+msgid "{0}: sshd daemon was closed automatically with command '{1}'."
+msgstr ""

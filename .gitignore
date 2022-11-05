@@ -1,0 +1,4 @@
+.eric7project/
+build/
+dist/
+eml_rename.egg-info/
