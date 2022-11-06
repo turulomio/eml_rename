@@ -136,7 +136,7 @@ with open('eml_rename/__init__.py', encoding='utf-8') as f:
 
 setup(name='eml_rename',
      version=__version__,
-     description='Script renames all eml files in a directory using mail metadata ',
+     description='Script renames all eml files in a directory using mail metadata',
      long_description='Project web page is in https://github.com/turulomio/eml_rename',
      long_description_content_type='text/markdown',
      classifiers=['Development Status :: 5 - Production/Stable',

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TooManyFiles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-06 07:17+0100\n"
+"POT-Creation-Date: 2022-11-06 07:28+0100\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: trabajo <turulomio@yahoo.es>\n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
@@ -55,8 +55,9 @@ msgstr "Este comando renombra todos los ficheros eml en un directorio usando los
 msgid "Forces subject update when 'YYYMMDD HHMM [from]' format is detected"
 msgstr "Fuerza la modificación del asunto cuando el formato 'YYYYMMDD HHMM [Desde]' es detectado"
 
-msgid "Maximum length allowed to final name using 'YYYMMDD HHMM [from]'"
-msgstr "Máxima longitud permitida al nombre final usando 'YYYYMMDD HHMM [Desde]'"
+#, python-brace-format
+msgid "Maximum length allowed to final name using 'YYYMMDD HHMM [from]'. Default: {0}"
+msgstr "Máxima longitud permitida al nombre final usando 'YYYYMMDD HHMM [Desde]'. Por defecto: {0}"
 
 msgid "Without this parameter files won't be renamed. Script only pretend the result"
 msgstr "Sin este parámetro los ficheros no serán renombrados. El comando solo adivina el resultado"
@@ -74,3 +75,4 @@ msgstr "El proceso fue simulado, los ficheros no fueron renombrados. Usa --save 
 
 msgid "It took {}"
 msgstr "Tardó {}"
+
