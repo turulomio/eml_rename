@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project eml_rename",
     "copyright": "Copyright (C) 2022 , ",
-    "saved": "2022-11-05, 06:45:21"
+    "saved": "2022-11-06, 07:31:10"
   },
   "project": {
     "AUTHOR": "",
@@ -52,7 +52,8 @@
     },
     "MIXEDLANGUAGE": false,
     "OTHERS": [
-      "README.md"
+      "README.md",
+      "eml_rename.epj"
     ],
     "OTHERTOOLSPARMS": {},
     "PACKAGERSPARMS": {},
@@ -71,7 +72,6 @@
       "eml_rename/__init__.py",
       "eml_rename/core.py",
       "eml_rename/reusing/datetime_functions.py",
-      "eml_rename/reusing/file_functions.py",
       "eml_rename/reusing/github.py",
       "setup.py"
     ],
