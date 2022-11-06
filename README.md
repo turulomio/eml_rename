@@ -14,7 +14,8 @@ I took this idea from an article of Armand Niculescu (August 20, 2014) at https:
 - Renamed files will have this format is 'YYYYMMDD HHMM [From] Subject'
 - If 'YYYYMMDD HHMM [From]' format is detected the script won't rename the file. With this feature user can change subject manually and the script won't overwrite it.
 - If you use --force parameter the script will overwrite all files even they have the 'YYYYMMDD HHMM [From]' format.
-- Length of the new name will have 120 character as maximum, although you can change it with the --length parameter
-- --save parameters renames files. If you don't use this parameter it will only pretend the result
+- Length of the new name will have 140 character as maximum, although you can change it with the --length parameter
+- --save parameter renames files. If you don't use this parameter it will only pretend the result
+- It uses concurrency to make process faster
 
 ## Changelog
