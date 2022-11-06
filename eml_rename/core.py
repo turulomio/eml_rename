@@ -2,6 +2,8 @@ from .__init__ import __versiondate__, __version__
 from argparse import ArgumentParser, RawTextHelpFormatter
 from chardet import detect
 from colorama import init as colorama_init, Fore, Style
+
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from datetime import datetime
 from email.parser import HeaderParser
 from email.utils import parsedate_to_datetime, parseaddr
@@ -11,6 +13,8 @@ from gettext import translation
 from glob import glob
 from importlib.resources import files
 from os import rename
+
+from multiprocessing import cpu_count
 from signal import signal,  SIGINT
 from sys import exit
 from tqdm import tqdm
@@ -172,20 +176,34 @@ def main():
     
     eml_rename(args.force, args.length, args.save)
 
-def eml_rename(force, length, save):
-    #Load in list al files
-    emls=[]
-    for filename in tqdm(glob( "*.eml", recursive=False), desc=_("Processing eml files")):
-        emls.append(EmlFile(filename))
-        
+def eml_rename(force, length, save):        
+    start=datetime.now()
+    
+    filenames=[]
+    for filename in glob( "*.eml", recursive=False):
+        filenames.append(filename)
+
+    
+    futures=[]
+    with ProcessPoolExecutor(max_workers=cpu_count()+1) as executor:
+            with tqdm(total=len(filenames), desc=_("Processing eml files")) as progress:
+                for filename in filenames:
+                        future=executor.submit(EmlFile, filename)
+                        future.add_done_callback(lambda p: progress.update())
+                        futures.append(future)
+
+                for future in as_completed(futures):
+                    future.result()
+
     #Sort files by path
-    emls= sorted(emls, key=lambda x: x.path, reverse=False)
+    futures= sorted(futures, key=lambda x: x.result().path, reverse=False)
     
     #Process files
     number_to_be_renamed=0
-    for i, o in enumerate(emls):
+    for i, f in enumerate(futures):
+        o=f.result()
 
-        print(f"-- ({i+1}/{len(emls)}) ({o.detected['encoding']})-----------------------------------------")
+        print(f"-- ({i+1}/{len(futures)}) ({o.detected['encoding']})-----------------------------------------")
         print(o.path)
         print(o.report(force, length, save))
         if o.will_be_renamed(force):
@@ -193,10 +211,11 @@ def eml_rename(force, length, save):
         if save is True:
             o.write(force, length)
             
+    print("-----------------------------------------------------------")
     print("")
     print("")
     if save is True:
         print(white(_("{0} files were renamed.").format(number_to_be_renamed)))
     else:
         print(white(_("Process was simulated, files weren't renamed. Use --save to rename {0} files.").format(number_to_be_renamed)))
-
+    print(white(_("It took {}").format(datetime.now()-start)))
