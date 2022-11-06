@@ -152,7 +152,7 @@ setup(name='eml_rename',
      author_email='turulomio@yahoo.es',
      license='GPL-3',
      packages=['eml_rename', 'eml_rename.locale', 'eml_rename.locale.es.LC_MESSAGES', 'eml_rename.locale.en.LC_MESSAGES', 'eml_rename.reusing'],
-     install_requires=[],
+     install_requires=['colorama', 'chardet', 'tqdm'],
      entry_points = {'console_scripts': [
                             'eml_rename=eml_rename.core:main',
                         ],

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TooManyFiles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-05 06:46+0100\n"
+"POT-Creation-Date: 2022-11-05 11:27+0100\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: trabajo <turulomio@yahoo.es>\n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
@@ -25,6 +25,27 @@ msgstr "Has pulsado 'Ctrl+C', saliendo..."
 msgid "Developed by Mariano Muñoz 2022-{}"
 msgstr "Desarrollado por Mariano Muñoz 2022-{}"
 
+msgid "Error parsing subject"
+msgstr "Error al obtener el asunto"
+
+msgid "[Error detected. Won't be renamed]"
+msgstr "[Error detectado. No será renombrado]"
+
+msgid "[Error detected. Not Renamed]"
+msgstr "[Error detectado. No renombrado]"
+
+msgid "[Will be renamed]"
+msgstr "[Será renombrado]"
+
+msgid "[Renamed]"
+msgstr "[Renombrado]"
+
+msgid "[Format detected. Won't de renamed]"
+msgstr "[Formato detectado. No será renombrado]"
+
+msgid "[Format detected. Not renamed]"
+msgstr "[Formato detectado. No renombrado]"
+
 msgid "Script renames all eml files in a directory using mail metadata "
 msgstr ""
 
@@ -34,39 +55,14 @@ msgstr ""
 msgid "Maximum length allowed to final name using 'YYYMMDD HHMM [from]'"
 msgstr ""
 
-#~ msgid "Launches a Telegram bot to start sshd daemon on demand"
-#~ msgstr "Lanza un bot en Telegram para iniciar el demonio sshd bajo demanda"
-
-#~ msgid "Debug program information"
-#~ msgstr "Información de depuración del programa"
+msgid "Without this parameter files won't be renamed. Script only pretend the result"
+msgstr ""
 
 #, python-brace-format
-#~ msgid "You must set and configure {0}"
-#~ msgstr "Debes colocar y configurar {0}"
+msgid "{0} files were renamed."
+msgstr "{0} ficheros fueron renombrados."
 
 #, python-brace-format
-#~ msgid "You can find and rename '{0}.default' from source code"
-#~ msgstr "Puedes encontrar y renombrar '{0}.default' en el código fuente"
+msgid "Process was simulated, files weren't renamed. Use --save to rename {0} files."
+msgstr ""
 
-#~ msgid "Starting manager"
-#~ msgstr "Iniciando el gestor"
-
-#~ msgid "Current system datetime is wrong. I will try again after 10 seconds"
-#~ msgstr "La fecha y hora actual del sistema está mal. Lo intentaré otra vez después de 10 segundos"
-
-#~ msgid "Internet detected"
-#~ msgstr "Internet detectado"
-
-#~ msgid "Internet wasn't detected. I will try again after 10 seconds"
-#~ msgstr "No se ha detectado Internet. Lo intentaré otra vez después de 10 segundos"
-
-#~ msgid "Stopping manager"
-#~ msgstr "Parando el gestor"
-
-#, python-brace-format
-#~ msgid "{0}: sshd daemon was launched with command '{1}'."
-#~ msgstr "{0}: el demonio sshd fue lanzado con el comando '{1}'."
-
-#, python-brace-format
-#~ msgid "{0}: sshd daemon was closed automatically with command '{1}'."
-#~ msgstr "{0}: el demonio sshd fue cerrado automáticamente con el comando '{1}'."

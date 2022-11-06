@@ -1,8 +1,9 @@
 from .__init__ import __versiondate__, __version__
 from argparse import ArgumentParser, RawTextHelpFormatter
+from chardet import detect
 from colorama import init as colorama_init, Fore, Style
 from datetime import datetime
-from email.parser import Parser
+from email.parser import HeaderParser
 from email.utils import parsedate_to_datetime, parseaddr
 from email.header import decode_header
 from eml_rename.reusing.datetime_functions import dtaware2string
@@ -12,6 +13,7 @@ from importlib.resources import files
 from os import rename
 from signal import signal,  SIGINT
 from sys import exit
+from tqdm import tqdm
 
 try:
     t=translation('eml_rename', files("eml_rename") / "locale")
@@ -47,16 +49,21 @@ class EmlFile():
         
         self.error_message=""
         
+        #Guessing file chart
+        with open(path, "rb") as f:
+            self.detected=detect(f.read(10000))
+        
         #Parse file and load used metadata            
-        with open(path, "r") as f:
+        with open(path, "r", encoding=self.detected["encoding"]) as f:
             try:
-                metadata=Parser().parse(f, True)
+                metadata=HeaderParser().parse(f)
                 self.from_=parseaddr(metadata["From"])[1]
                 self.dt=parsedate_to_datetime(metadata["Date"])
                 self.subject=self.parse_subject(metadata["Subject"])
             except Exception as e:
                 self.error_message=e
                 
+    
 
     #Returns [(b'This is a subject', 'iso-8859-1')], codification can be None
     def parse_subject(self, subject):
@@ -69,6 +76,9 @@ class EmlFile():
                     r=r+stream.decode(codification)
                 elif isinstance(stream,  str):
                     r=r+stream
+                    
+            if r.strip()=="":
+                r=_("(Without subject)")
             return r
         except:
             self.error_message=_("Error parsing subject") + str(arr)
@@ -93,33 +103,33 @@ class EmlFile():
 
 
     ##Method that detects if path has eml_rename format and returns a Boolean
-    def format_detected(self):
-        if hasattr(self, "_format_detected"):
-            return self._format_detected
+    def filename_format_detected(self):
+        if hasattr(self, "_filename_format_detected"):
+            return self._filename_format_detected
             
         arr=self.path.split(" ")
         if len(arr)<3:
-            self._format_detected= False
-            return self._format_detected
+            self._filename_format_detected= False
+            return self._filename_format_detected
         
         if len(arr[0])!=8:
-            self._format_detected=False
-            return self._format_detected
+            self._filename_format_detected=False
+            return self._filename_format_detected
         if len(arr[1])!=4:
-            self._format_detected=False
-            return self._format_detected
+            self._filename_format_detected=False
+            return self._filename_format_detected
             
         try:
             datetime.strptime( arr[0]+" "+arr[1], "%Y%m%d %H%M" )
         except:
-            self._format_detected=False
-            return self._format_detected
+            self._filename_format_detected=False
+            return self._filename_format_detected
             
         if not arr[2].startswith("[") or not arr[2].endswith("]") or not "@" in arr[2][1:-1]:
-            self._format_detected=False
-            return self._format_detected
-        self._format_detected=True
-        return self._format_detected
+            self._filename_format_detected=False
+            return self._filename_format_detected
+        self._filename_format_detected=True
+        return self._filename_format_detected
         
     def will_be_renamed(self, force):
         if hasattr(self, "_will_be_renamed"):
@@ -127,7 +137,7 @@ class EmlFile():
         if self.error_message!="":
             self._will_be_renamed= False
             return self._will_be_renamed
-        if force is False and self.format_detected() is True:
+        if force is False and self.filename_format_detected() is True:
             self._will_be_renamed=  False
             return self._will_be_renamed
         self._will_be_renamed=  True
@@ -165,7 +175,7 @@ def main():
 def eml_rename(force, length, save):
     #Load in list al files
     emls=[]
-    for filename in glob( "*.eml", recursive=False):
+    for filename in tqdm(glob( "*.eml", recursive=False), desc=_("Processing eml files")):
         emls.append(EmlFile(filename))
         
     #Sort files by path
@@ -175,7 +185,7 @@ def eml_rename(force, length, save):
     number_to_be_renamed=0
     for i, o in enumerate(emls):
 
-        print(f"-- ({i+1}/{len(emls)}) -----------------------------------------")
+        print(f"-- ({i+1}/{len(emls)}) ({o.detected['encoding']})-----------------------------------------")
         print(o.path)
         print(o.report(force, length, save))
         if o.will_be_renamed(force):
