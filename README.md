@@ -19,3 +19,7 @@ I took this idea from an article of Armand Niculescu (August 20, 2014) at https:
 - It uses concurrency to make process faster
 
 ## Changelog
+
+### 0.1.0 (2022-11-06)
+- First version
+- Added main features

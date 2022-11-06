@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-05 11:29+0100\n"
+"POT-Creation-Date: 2022-11-06 07:21+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,6 +21,9 @@ msgid "You pressed 'Ctrl+C', exiting..."
 msgstr ""
 
 msgid "Developed by Mariano Muñoz 2022-{}"
+msgstr ""
+
+msgid "(Without subject)"
 msgstr ""
 
 msgid "Error parsing subject"
@@ -56,10 +59,16 @@ msgstr ""
 msgid "Without this parameter files won't be renamed. Script only pretend the result"
 msgstr ""
 
+msgid "Processing eml files"
+msgstr ""
+
 #, python-brace-format
 msgid "{0} files were renamed."
 msgstr ""
 
 #, python-brace-format
 msgid "Process was simulated, files weren't renamed. Use --save to rename {0} files."
+msgstr ""
+
+msgid "It took {}"
 msgstr ""

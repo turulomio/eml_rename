@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TooManyFiles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-05 11:27+0100\n"
+"POT-Creation-Date: 2022-11-06 07:17+0100\n"
 "PO-Revision-Date: 2020-04-03 08:54+0200\n"
 "Last-Translator: trabajo <turulomio@yahoo.es>\n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
@@ -24,6 +24,9 @@ msgstr "Has pulsado 'Ctrl+C', saliendo..."
 
 msgid "Developed by Mariano Muñoz 2022-{}"
 msgstr "Desarrollado por Mariano Muñoz 2022-{}"
+
+msgid "(Without subject)"
+msgstr "(sin asunto)"
 
 msgid "Error parsing subject"
 msgstr "Error al obtener el asunto"
@@ -47,16 +50,19 @@ msgid "[Format detected. Not renamed]"
 msgstr "[Formato detectado. No renombrado]"
 
 msgid "Script renames all eml files in a directory using mail metadata "
-msgstr ""
+msgstr "Este comando renombra todos los ficheros eml en un directorio usando los metadatos del correo"
 
 msgid "Forces subject update when 'YYYMMDD HHMM [from]' format is detected"
-msgstr ""
+msgstr "Fuerza la modificación del asunto cuando el formato 'YYYYMMDD HHMM [Desde]' es detectado"
 
 msgid "Maximum length allowed to final name using 'YYYMMDD HHMM [from]'"
-msgstr ""
+msgstr "Máxima longitud permitida al nombre final usando 'YYYYMMDD HHMM [Desde]'"
 
 msgid "Without this parameter files won't be renamed. Script only pretend the result"
-msgstr ""
+msgstr "Sin este parámetro los ficheros no serán renombrados. El comando solo adivina el resultado"
+
+msgid "Processing eml files"
+msgstr "Procesando ficheros eml"
 
 #, python-brace-format
 msgid "{0} files were renamed."
@@ -64,5 +70,7 @@ msgstr "{0} ficheros fueron renombrados."
 
 #, python-brace-format
 msgid "Process was simulated, files weren't renamed. Use --save to rename {0} files."
-msgstr ""
+msgstr "El proceso fue simulado, los ficheros no fueron renombrados. Usa --save para renombrar {0} ficheros."
 
+msgid "It took {}"
+msgstr "Tardó {}"
