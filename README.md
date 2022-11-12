@@ -20,6 +20,9 @@ I took this idea from an article of Armand Niculescu (August 20, 2014) at https:
 
 ## Changelog
 
+### 0.2.0 (2022-11-12)
+-  Now mail datetime uses local system time zone
+
 ### 0.1.0 (2022-11-06)
 - First version
 - Added main features
