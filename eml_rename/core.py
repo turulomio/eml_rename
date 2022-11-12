@@ -18,6 +18,7 @@ from multiprocessing import cpu_count
 from signal import signal,  SIGINT
 from sys import exit
 from tqdm import tqdm
+from zoneinfo import ZoneInfo
 
 try:
     t=translation('eml_rename', files("eml_rename") / "locale")
@@ -46,6 +47,9 @@ def blue(s):
 def white(s):
     return Style.BRIGHT + Fore.WHITE + str(s) + Style.RESET_ALL
 
+def get_system_localzone_name():
+    return datetime.now().astimezone().tzname()
+
 ## Class to work with eml file
 class EmlFile():
     def __init__(self, path):
@@ -60,9 +64,12 @@ class EmlFile():
         #Parse file and load used metadata            
         with open(path, "r", encoding=self.detected["encoding"]) as f:
             try:
+                system_timezone=get_system_localzone_name()
+
                 metadata=HeaderParser().parse(f)
                 self.from_=parseaddr(metadata["From"])[1]
-                self.dt=parsedate_to_datetime(metadata["Date"])
+                dt_mail=parsedate_to_datetime(metadata["Date"])
+                self.dt=dt_mail.astimezone(ZoneInfo(system_timezone))
                 self.subject=self.parse_subject(metadata["Subject"])
             except Exception as e:
                 self.error_message=e
