@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "eml-rename"
-version = "0.2.0"
+version = "0.3.0"
 description = "Script renames all eml files in a directory using mail metadata"
 authors = ["turulomio <turulomio@yahoo.es>"]
 license = "GPL-3.0 license"
@@ -22,3 +22,9 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 eml_rename = 'eml_rename.core:main'
+
+
+[project.urls]
+homepage = "https://github.com/turulomio/eml_rename/"
+repository = "https://github.com/turulomio/eml_rename/"
+changelog = "https://github.com/turulomio/eml_rename#changelog"

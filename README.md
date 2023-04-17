@@ -20,6 +20,10 @@ I took this idea from an article of Armand Niculescu (August 20, 2014) at https:
 
 ## Changelog
 
+### 0.3.0 (2023-04-17)
+- setup.py migrated to poetry
+- Fix bug with CEST time zones
+
 ### 0.2.0 (2022-11-12)
 -  Now mail datetime uses local system time zone
 
