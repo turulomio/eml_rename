@@ -6,3 +6,6 @@ eml_rename/locale/*.po~
 eml_rename/reusing/__pycache__/
 *.eml
 .jedi/
+.python3.10/
+eml_rename/__pycache__/
+poetry.lock

@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "eml-rename"
+version = "0.2.0"
+description = "Script renames all eml files in a directory using mail metadata"
+authors = ["turulomio <turulomio@yahoo.es>"]
+license = "GPL-3.0 license"
+readme = "README.md"
+packages = [{include = "eml_rename"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+colorama = "^0.4.6"
+chardet = "^5.1.0"
+tqdm = "^4.65.0"
+pytz = "^2023.3"
+
+[tool.poetry.group.dev.dependencies]
+poetry = "^1.4.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+eml_rename = 'eml_rename.core:main'
