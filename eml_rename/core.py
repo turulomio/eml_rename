@@ -8,7 +8,6 @@ from datetime import datetime
 from email.parser import HeaderParser
 from email.utils import parsedate_to_datetime, parseaddr
 from email.header import decode_header
-from eml_rename.reusing.datetime_functions import dtaware2string
 from gettext import translation
 from glob import glob
 from importlib.resources import files
@@ -47,6 +46,49 @@ def blue(s):
 def white(s):
     return Style.BRIGHT + Fore.WHITE + str(s) + Style.RESET_ALL
 
+
+## Returns if a datetime is aware
+def is_aware(dt):
+    if dt.tzinfo is None or dt.tzinfo.utcoffset(dt) is None:
+        return False
+    return True
+
+## Returns if a datetime is naive
+def is_naive(dt):
+    return not is_aware(dt)
+
+## Returns a formated string of a dtaware string formatting with a zone name
+## @param dt datetime aware object
+## @return String
+def dtaware2string(dt, format):
+    if is_naive(dt)==True:
+        print("A dtaware is needed for {}".format(dt))
+    else:
+        return dtnaive2string(dt, format)
+
+## Returns a formated string of a dtaware string formatting with a zone name
+## @param dt datetime aware object
+## @param format String in ["%Y-%m-%d", "%Y-%m-%d %H:%M:%S", "%Y%m%d %H%M", "%Y%m%d%H%M"]
+## @return String
+def dtnaive2string(dt, format):
+    allowed=["%Y-%m-%d", "%Y-%m-%d %H:%M:%S", "%Y%m%d %H%M", "%Y%m%d%H%M", "JsUtcIso"]
+    if dt==None:
+        return "None"
+    elif format in allowed:
+        if format=="%Y-%m-%d":
+            return dt.strftime("%Y-%m-%d")
+        elif format=="%Y-%m-%d %H:%M:%S": 
+            return dt.strftime("%Y-%m-%d %H:%M:%S")
+        elif format=="%Y%m%d %H%M": 
+            return dt.strftime("%Y%m%d %H%M")
+        elif format=="%Y%m%d%H%M":
+            return dt.strftime("%Y%m%d%H%M")
+        elif format=="JsUtcIso":
+            return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+    else:
+        print("I can't convert this format '{}'. I only support this {}".format(format, allowed))
+
+
 def get_system_localzone_name():
     return datetime.now().astimezone().tzname()
 
@@ -64,11 +106,12 @@ class EmlFile():
         #Parse file and load used metadata            
         with open(path, "r", encoding=self.detected["encoding"]) as f:
             try:
-                system_timezone=get_system_localzone_name()
-
                 metadata=HeaderParser().parse(f)
                 self.from_=parseaddr(metadata["From"])[1]
                 dt_mail=parsedate_to_datetime(metadata["Date"])
+                system_timezone=get_system_localzone_name()
+                if system_timezone in ["CEST", "CET"]: #Cest wasn't recognized by ZoneInfo
+                    system_timezone="Europe/Madrid"
                 self.dt=dt_mail.astimezone(ZoneInfo(system_timezone))
                 self.subject=self.parse_subject(metadata["Subject"])
             except Exception as e:

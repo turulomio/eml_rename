@@ -12,7 +12,6 @@ python = "^3.10"
 colorama = "^0.4.6"
 chardet = "^5.1.0"
 tqdm = "^4.65.0"
-pytz = "^2023.3"
 
 [tool.poetry.group.dev.dependencies]
 poetry = "^1.4.2"
