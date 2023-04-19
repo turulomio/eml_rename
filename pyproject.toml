@@ -14,15 +14,15 @@ chardet = "^5.1.0"
 tqdm = "^4.65.0"
 
 [tool.poetry.group.dev.dependencies]
-poetry = "^1.4.2"
+poethepoet = "^0.19.0"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.poetry.scripts]
-eml_rename = 'eml_rename.core:main'
-
+[tool.poe.tasks]
+release = { script = "eml_rename.devscripts:release" }
+translate = { script = "eml_rename.devscripts:translate" }
 
 [project.urls]
 homepage = "https://github.com/turulomio/eml_rename/"
