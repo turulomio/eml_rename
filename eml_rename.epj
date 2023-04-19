@@ -1,8 +1,8 @@
 {
   "header": {
     "comment": "eric project file for project eml_rename",
-    "copyright": "Copyright (C) 2022 , ",
-    "saved": "2022-11-06, 07:31:10"
+    "copyright": "Copyright (C) 2023 , ",
+    "saved": "2023-04-19, 19:17:25"
   },
   "project": {
     "AUTHOR": "",
@@ -52,6 +52,7 @@
     },
     "MIXEDLANGUAGE": false,
     "OTHERS": [
+      "NEW_RELEASE.md",
       "README.md",
       "eml_rename.epj"
     ],
@@ -71,9 +72,7 @@
     "SOURCES": [
       "eml_rename/__init__.py",
       "eml_rename/core.py",
-      "eml_rename/reusing/datetime_functions.py",
-      "eml_rename/reusing/github.py",
-      "setup.py"
+      "eml_rename/devscripts.py"
     ],
     "SPELLEXCLUDES": "",
     "SPELLLANGUAGE": "en_US",
