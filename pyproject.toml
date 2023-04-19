@@ -7,6 +7,11 @@ license = "GPL-3.0 license"
 readme = "README.md"
 packages = [{include = "eml_rename"}]
 
+exclude = [
+    "eml_rename/devscripts.py"
+]
+
+
 [tool.poetry.dependencies]
 python = "^3.10"
 colorama = "^0.4.6"

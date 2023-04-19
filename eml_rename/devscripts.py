@@ -26,87 +26,11 @@ def release():
 
 def translate():
         #es
-        system("xgettext -L Python --no-wrap --no-location --from-code='UTF-8' -o locale/unogenerator.pot *.py unogenerator/*.py unogenerator/reusing/*.py setup.py")
-        system("msgmerge -N --no-wrap -U locale/es.po locale/unogenerator.pot")
-        system("msgfmt -cv -o unogenerator/locale/es/LC_MESSAGES/unogenerator.mo locale/es.po")
-        system("msgfmt -cv -o unogenerator/locale/en/LC_MESSAGES/unogenerator.mo locale/en.po")
-#
-#    
-### Class to define doc command
-#class Documentation(Command):
-#    description = "Generate documentation for distribution"
-#    user_options = []
-#
-#    def initialize_options(self):
-#        pass
-#
-#    def finalize_options(self):
-#        pass
-#
-#    def run(self):
-#        system("unogenerator_demo --create")
-#        system("cp -f unogenerator_documentation_en.odt doc/")
-#        system("cp -f unogenerator_documentation_en.pdf doc/")
-#        system("cp -f unogenerator_documentation_es.odt doc/")
-#        system("cp -f unogenerator_documentation_es.pdf doc/")
-#        system("cp -f unogenerator_example_en.ods doc/")
-#        system("cp -f unogenerator_example_en.pdf doc/")
-#        system("cp -f unogenerator_example_es.ods doc/")
-#        system("cp -f unogenerator_example_es.pdf doc/")
-#        system("unogenerator_demo --remove")
-#
-#class Procedure(Command):
-#    description = "Show release procedure"
-#    user_options = []
-#
-#    def initialize_options(self):
-#        pass
-#
-#    def finalize_options(self):
-#        pass
-#
-#    def run(self):
-#        print("""Nueva versión:
-#  * Cambiar la versión y la fecha en commons.py
-#  * Modificar el Changelog en README
-#  * python setup.py translate
-#  * linguist
-#  * python setup.py translate
-#  * python setup.py uninstall; python setup.py install
-#  * python setup.py documentation
-#  * python setup.py doxygen
-#  * git commit -a -m 'unogenerator-{0}'
-#  * git push
-#  * Hacer un nuevo tag en GitHub
-#  * python setup.py sdist
-#  * twine upload dist/unogenerator-{0}.tar.gz 
-#  * python setup.py uninstall
-#  * Crea un nuevo ebuild de UNOGENERATOR Gentoo con la nueva versión
-#  * Subelo al repositorio del portage
-#
-#""".format(__version__))
-#
-### Class to define doxygen command
-#class Doxygen(Command):
-#    description = "Create/update doxygen documentation in doc/html"
-#
-#    user_options = [
-#      # The format is (long option, short option, description).
-#      ( 'user=', None, 'Remote ssh user'),
-#      ( 'directory=', None, 'Remote ssh path'),
-#      ( 'port=', None, 'Remote ssh port'),
-#      ( 'server=', None, 'Remote ssh server'),
-#  ]
-#
-#    def initialize_options(self):
-#        self.user="root"
-#        self.directory="/var/www/html/doxygen/unogenerator/"
-#        self.port=22
-#        self.server="127.0.0.1"
-#
-#    def finalize_options(self):
-#        pass
-#
+        system("xgettext -L Python --no-wrap --no-location --from-code='UTF-8' -o eml_rename/locale/eml_rename.pot eml_rename/*.py")
+        system("msgmerge -N --no-wrap -U eml_rename/locale/es.po eml_rename/locale/eml_rename.pot")
+        system("msgfmt -cv -o eml_rename/locale/es/LC_MESSAGES/eml_rename.mo eml_rename/locale/es.po")
+        system("msgfmt -cv -o eml_rename/locale/en/LC_MESSAGES/eml_rename.mo eml_rename/locale/en.po")
+
 #    def run(self):
 #        print("Creating Doxygen Documentation")
 #        system("""sed -i -e "41d" doc/Doxyfile""")#Delete line 41
