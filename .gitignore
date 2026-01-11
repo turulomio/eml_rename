@@ -8,4 +8,5 @@ eml_rename/reusing/__pycache__/
 .jedi/
 .python3.10/
 eml_rename/__pycache__/
-poetry.lock
+eml_rename/tests/__pycache__/
+.coverage

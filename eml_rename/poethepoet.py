@@ -1,0 +1,45 @@
+from eml_rename import __version__
+from os import system, chdir
+from shutil import which
+
+
+
+def release():
+        print("""Nueva versión:
+  * Cambiar la versión y la fecha en commons.py y en pyproject
+  * poe translate
+  * linguist
+  * poe translate
+  * poe coverage
+  * poe video
+  * git commit -a -m 'eml_rename-{0}'
+  * git push
+  * Hacer un nuevo tag en GitHub
+  * git checkout main
+  * git pull
+  * poetry build 
+  * poetry publish
+  * Crea un nuevo ebuild de eml_rename Gentoo con la nueva versión
+  * Subelo al repositorio del portage
+
+""".format(__version__))
+
+
+def translate():
+	#es
+	system("xgettext -L Python --no-wrap --no-location --from-code='UTF-8' -o eml_rename/locale/eml_rename.pot eml_rename/*.py")
+	system("msgmerge -N --no-wrap -U eml_rename/locale/es.po eml_rename/locale/eml_rename.pot")
+	system("msgfmt -cv -o eml_rename/locale/es/LC_MESSAGES/eml_rename.mo eml_rename/locale/es.po")
+	system("msgfmt -cv -o eml_rename/locale/en/LC_MESSAGES/eml_rename.mo eml_rename/locale/en.po")
+def coverage():
+    system("coverage run -m pytest && coverage report && coverage html")
+
+def video():
+    # Comprobaciones
+    vhs=which("vhs")
+    if vhs is None: 
+        print(_("vhs tool is needed. Look at https://github.com/charmbracelet/vhs"))
+        exit(1)
+
+    chdir("doc")
+    system(f"{vhs} command.tape")

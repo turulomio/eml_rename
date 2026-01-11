@@ -1,33 +1,36 @@
-[tool.poetry]
+[project]
 name = "eml-rename"
-version = "0.3.0"
+version = "0.3.9999"
 description = "Script renames all eml files in a directory using mail metadata"
-authors = ["turulomio <turulomio@yahoo.es>"]
-license = "GPL-3.0 license"
+authors = [{name = "turulomio", email = "turulomio@yahoo.es"}]
+license = {text = "GPL-3.0 license"}
 readme = "README.md"
-packages = [{include = "eml_rename"}]
-
-exclude = [
-    "eml_rename/devscripts.py"
+requires-python = ">=3.10,<4.0"
+dependencies = [
+    "colorama>=0.4.6",
+    "chardet>=5.2.0",
+    "tqdm>=4.67.1",
+    "pydicts (>=1.1.0,<2.0.0)",
 ]
 
 
-[tool.poetry.dependencies]
-python = "^3.10"
-colorama = "^0.4.6"
-chardet = "^5.1.0"
-tqdm = "^4.65.0"
+[project.scripts]
+eml_rename = "eml_rename.core:main"
 
 [tool.poetry.group.dev.dependencies]
-poethepoet = "^0.19.0"
+poethepoet = ">=0.32.1"
+pytest = "^9.0.2"
+coverage = "^7.13.1"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poe.tasks]
-release = { script = "eml_rename.devscripts:release" }
-translate = { script = "eml_rename.devscripts:translate" }
+release = { script = "eml_rename.poethepoet:release" }
+translate = { script = "eml_rename.poethepoet:translate" }
+coverage = { script = "eml_rename.poethepoet:coverage" }
+video = { script = "eml_rename.poethepoet:video" }
 
 [project.urls]
 homepage = "https://github.com/turulomio/eml_rename/"
