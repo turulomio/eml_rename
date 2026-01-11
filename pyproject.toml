@@ -12,11 +12,14 @@ dependencies = [
     "tqdm>=4.67.1",
 ]
 
-[tool.poetry]
-packages = [{include = "eml_rename"}]
+
+[project.scripts]
+eml_rename = "eml_rename.core:main"
 
 [tool.poetry.group.dev.dependencies]
 poethepoet = ">=0.32.1"
+pytest = "^9.0.2"
+coverage = "^7.13.1"
 
 [build-system]
 requires = ["poetry-core"]
