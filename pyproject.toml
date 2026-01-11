@@ -29,6 +29,8 @@ build-backend = "poetry.core.masonry.api"
 [tool.poe.tasks]
 release = { script = "eml_rename.poethepoet:release" }
 translate = { script = "eml_rename.poethepoet:translate" }
+coverage = { script = "eml_rename.poethepoet:coverage" }
+video = { script = "eml_rename.poethepoet:video" }
 
 [project.urls]
 homepage = "https://github.com/turulomio/eml_rename/"

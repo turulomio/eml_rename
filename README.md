@@ -1,5 +1,10 @@
 # eml_rename project
 
+
+
+[![Tests](https://github.com/turulomio/eml_rename/actions/workflows/tests.yml/badge.svg)](https://github.com/turulomio/eml_rename/actions/workflows/tests.yml)
+
+
 Script renames all eml files in a directory using mail metadata
 
 ## Idea
@@ -10,6 +15,8 @@ I took this idea from an article of Armand Niculescu (August 20, 2014) at https:
 
 ## Features
 
+<img src="https://raw.githubusercontent.com/turulomio/eml_rename/master/doc/command.gif?raw=true" width="100%"></img>
+
 - Automatically renames all *.eml files in a directory, using email metadata. 
 - Renamed files will have this format is 'YYYYMMDD HHMM [From] Subject'
 - If 'YYYYMMDD HHMM [From]' format is detected the script won't rename the file. With this feature user can change subject manually and the script won't overwrite it.
@@ -18,15 +25,3 @@ I took this idea from an article of Armand Niculescu (August 20, 2014) at https:
 - --save parameter renames files. If you don't use this parameter it will only pretend the result
 - It uses concurrency to make process faster
 
-## Changelog
-
-### 0.3.0 (2023-04-17)
-- setup.py migrated to poetry
-- Fix bug with CEST time zones
-
-### 0.2.0 (2022-11-12)
--  Now mail datetime uses local system time zone
-
-### 0.1.0 (2022-11-06)
-- First version
-- Added main features

@@ -9,4 +9,4 @@ eml_rename/reusing/__pycache__/
 .python3.10/
 eml_rename/__pycache__/
 eml_rename/tests/__pycache__/
-
+.coverage
