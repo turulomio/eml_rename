@@ -98,13 +98,23 @@ class EmlFile():
                 if not api_key:
                     raise Exception("GOOGLE_API_KEY environment variable not set")
                 client = genai.Client(api_key=api_key)
-                prompt = f"Summarize the following email content in a single sentence, maximum 140 characters, to be used as a file name subject. Content: {body}"
+                prompt = f"""Summarize the following email content in a single sentence, maximum 140 characters, to be used as a file name subject. The sentence must be in spanish. 
+
+                Trata de quitar articulos y letras innecesaria. Debe dar un esquema de contenido. No detalles
+
+                Quiero la idea fuerza de forma esquemática
+                
+                Nopongas un punto al final.
+
+                Content: {body}"""
+
                 
                 # # List all available models to console
                 # for m in client.models.list():
                 #     print(f"Found model: {m.name}")
 
-                response = client.models.generate_content(model='gemini-3-flash-preview', contents=prompt)
+                response = client.models.generate_content(model='gemma-3n-e4b-it', contents=prompt)
+                print(prompt, response.text)
                 if response and response.text:
                     return response.text.strip().replace("\n", " ")[:140]
             except Exception as e:

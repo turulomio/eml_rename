@@ -34,12 +34,13 @@ def eml_rename(force=False, length=140, save=False, ia=False):
 
     
     futures=[]
-    with ThreadPoolExecutor(max_workers=1) as executor:
+    with ThreadPoolExecutor(max_workers=1 if ia else cpu_count()+1) as executor:
             with tqdm(total=len(filenames), desc=_("Processing eml files")) as progress:
                 for filename in filenames:
                         future=executor.submit(EmlFile, filename, ia)
                         from time import sleep
-                        sleep(12)
+                        if ia:
+                            sleep(1.8)
                         future.add_done_callback(lambda p: progress.update())
                         futures.append(future)
 
