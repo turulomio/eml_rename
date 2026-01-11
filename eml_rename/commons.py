@@ -14,8 +14,8 @@ from pydicts import colors, casts
 from sys import exit
 from zoneinfo import ZoneInfo
 
-__version__ = '1.0.0'
-__versiondatetime__ = datetime(2026, 1, 11, 21, 50)
+__version__ = '1.0.1'
+__versiondatetime__ = datetime(2026, 1, 11, 21, 57)
 __versiondate__ = __versiondatetime__.date()
 
 try:
