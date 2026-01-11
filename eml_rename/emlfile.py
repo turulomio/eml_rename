@@ -156,10 +156,8 @@ class EmlFile():
                 
     def final_name(self):
         basename=f"{casts.dtaware2str(self.dt, '%Y%m%d %H%M')} [{self.from_}] {self.subject}"
-        print(basename, len(basename), self.length)
         if len(basename)>self.length:
             basename=basename[0:self.length-4]
-        print(basename)
         return basename+".eml"
 
 
