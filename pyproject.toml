@@ -1,6 +1,6 @@
 [project]
 name = "eml-rename"
-version = "0.3.9999"
+version = "1.0.0"
 description = "Script renames all eml files in a directory using mail metadata"
 authors = [{name = "turulomio", email = "turulomio@yahoo.es"}]
 license = {text = "GPL-3.0 license"}
@@ -10,7 +10,7 @@ dependencies = [
     "colorama>=0.4.6",
     "chardet>=5.2.0",
     "tqdm>=4.67.1",
-    "pydicts (>=1.1.0,<2.0.0)",
+    "pydicts >=1.1.0",
     "google-genai>=0.6.0",
 ]
 
