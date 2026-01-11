@@ -76,9 +76,9 @@ def test_emlrename(test_fs):
     assert not path.exists(test_fs["mail2.eml"])
     assert not path.exists(test_fs["mail3.eml"])
     assert path.exists(test_fs["fake.eml"])
-    assert path.exists("20230915 0945 [jane.smith@example.org] Project Update EML Rename.eml")
-    assert path.exists("20240522 1400 [info@conciencia-global.org] La urgente realidad del cambio climatico.eml")
-    assert path.exists("20240522 1530 [skeptic@example.com] Re La urgente realidad del cambio climatico.eml")
+    assert path.exists("20230915 0745 [jane.smith@example.org] Project Update EML Rename.eml")
+    assert path.exists("20240522 1200 [info@conciencia-global.org] La urgente realidad del cambio climatico.eml")
+    assert path.exists("20240522 1330 [skeptic@example.com] Re La urgente realidad del cambio climatico.eml")
 
 def test_main_with_help_args(monkeypatch):
     """Test that main exits when no arguments are provided."""
@@ -98,6 +98,6 @@ def test_main_with_no_args(monkeypatch, test_fs):
     assert not path.exists(test_fs["mail2.eml"])
     assert not path.exists(test_fs["mail3.eml"])
     assert path.exists(test_fs["fake.eml"])
-    assert path.exists("20230915 0945 [jane.smith@example.org] Project Update EML Rename.eml")
-    assert path.exists("20240522 1400 [info@conciencia-global.org] La urgente realidad del cambio climatico.eml")
-    assert path.exists("20240522 1530 [skeptic@example.com] Re La urgente realidad del cambio climatico.eml")
+    assert path.exists("20230915 0745 [jane.smith@example.org] Project Update EML Rename.eml")
+    assert path.exists("20240522 1200 [info@conciencia-global.org] La urgente realidad del cambio climatico.eml")
+    assert path.exists("20240522 1330 [skeptic@example.com] Re La urgente realidad del cambio climatico.eml")

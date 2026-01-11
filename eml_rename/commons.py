@@ -49,4 +49,7 @@ def get_google_api_key():
     return None
 
 def get_system_localzone_name():
-    return datetime.now().astimezone().tzname()
+    tz= datetime.now().astimezone().tzname()
+    if tz in ["CEST", "CET"]: #Cest wasn't recognized by ZoneInfo
+        return "UTC"
+    return tz

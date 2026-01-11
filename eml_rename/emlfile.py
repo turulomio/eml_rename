@@ -52,8 +52,6 @@ class EmlFile():
             try:
                 metadata=HeaderParser().parse(f)
                 dt_mail=parsedate_to_datetime(metadata["Date"])
-                if self.system_timezone in ["CEST", "CET"]: #Cest wasn't recognized by ZoneInfo
-                    self.system_timezone="Europe/Madrid"
                 dt=dt_mail.astimezone(ZoneInfo(self.system_timezone))
                 return dt
             except Exception as e:
