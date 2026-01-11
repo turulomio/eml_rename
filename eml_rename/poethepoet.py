@@ -6,20 +6,19 @@ from shutil import which
 
 def release():
         print("""Nueva versión:
-  * Cambiar la versión y la fecha en commons.py
-  * Modificar el Changelog en README
-  * python setup.py translate
+  * Cambiar la versión y la fecha en commons.py y en pyproject
+  * poe translate
   * linguist
-  * python setup.py translate
-  * python setup.py uninstall; python setup.py install
-  * python setup.py documentation
-  * python setup.py doxygen
+  * poe translate
+  * poe coverage
+  * poe video
   * git commit -a -m 'eml_rename-{0}'
   * git push
   * Hacer un nuevo tag en GitHub
-  * python setup.py sdist
-  * twine upload dist/eml_rename-{0}.tar.gz 
-  * python setup.py uninstall
+  * git checkout main
+  * git pull
+  * poetry build 
+  * poetry publish
   * Crea un nuevo ebuild de eml_rename Gentoo con la nueva versión
   * Subelo al repositorio del portage
 
