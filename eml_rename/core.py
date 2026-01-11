@@ -1,6 +1,7 @@
 from argparse import ArgumentParser, RawTextHelpFormatter
 
-from eml_rename.commons import EmlFile, signal_handler,__version__, __versiondate__, __versiondatetime__, _, argparse_epilog
+from eml_rename.commons import signal_handler,__version__, __versiondate__, __versiondatetime__, _, argparse_epilog
+from eml_rename.emlfile import EmlFile
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from glob import glob
@@ -17,14 +18,16 @@ def main():
     default_length=140
     parser=ArgumentParser(description=_('Script renames all eml files in a directory using mail metadata '), epilog=argparse_epilog(), formatter_class=RawTextHelpFormatter)
     parser.add_argument('--version', action='version', version=__version__)
-    parser.add_argument('--force', help=_("Forces subject update when 'YYYMMDD HHMM [from]' format is detected"), action="store_true", default=False)
-    parser.add_argument('--length', help=_("Maximum length allowed to final name using 'YYYMMDD HHMM [from]'. Default: {0}").format(default_length), action="store", default=default_length,  type=int)
+    parser.add_argument('--force', help=_("Forces subject update when 'YYYYMMDD HHMM [from]' format is detected"), action="store_true", default=False)
+    parser.add_argument('--length', help=_("Maximum length allowed to final name using 'YYYYMMDD HHMM [from]'. Default: {0}").format(default_length), action="store", default=default_length,  type=int)
     parser.add_argument('--save', help=_("Without this parameter files won't be renamed. Script only pretend the result"), action="store_true", default=False)
+    parser.add_argument('--ai', help=_("Use Gemini AI to summarize email content as subject"), action="store_true", default=False)
+    parser.add_argument('--ai_delay', help=_("Delay between AI requests"), action="store", type=int, default=2)
     args=parser.parse_args()
     
-    eml_rename(args.force, args.length, args.save)
+    eml_rename(args.force, args.length, args.save, args.ai, args.ai_delay)
 
-def eml_rename(force=False, length=140, save=False):        
+def eml_rename(force=False, length=140, save=False, ia=False, ia_delay=2):        
     start=datetime.now()
     
     filenames=[]
@@ -33,10 +36,13 @@ def eml_rename(force=False, length=140, save=False):
 
     
     futures=[]
-    with ThreadPoolExecutor(max_workers=cpu_count()+1) as executor:
+    with ThreadPoolExecutor(max_workers=1 if ia else cpu_count()+1) as executor:
             with tqdm(total=len(filenames), desc=_("Processing eml files")) as progress:
                 for filename in filenames:
-                        future=executor.submit(EmlFile, filename)
+                        future=executor.submit(EmlFile, filename, length, ia)
+                        from time import sleep
+                        if ia:
+                            sleep(ia_delay)
                         future.add_done_callback(lambda p: progress.update())
                         futures.append(future)
 
@@ -51,13 +57,13 @@ def eml_rename(force=False, length=140, save=False):
     for i, f in enumerate(futures):
         o=f.result()
 
-        print(f"-- ({i+1}/{len(futures)}) ({o.detected['encoding']})-----------------------------------------")
+        print(f"-- ({i+1}/{len(futures)}) ({o.file_encoding})-----------------------------------------")
         print(o.path)
-        print(o.report(force, length, save))
+        print(o.report(force, save))
         if o.will_be_renamed(force):
             number_to_be_renamed+=1
         if save is True:
-            o.write(force, length)
+            o.write(force)
             
     print("-----------------------------------------------------------")
     print("")

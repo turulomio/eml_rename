@@ -25,3 +25,19 @@ I took this idea from an article of Armand Niculescu (August 20, 2014) at https:
 - --save parameter renames files. If you don't use this parameter it will only pretend the result
 - It uses concurrency to make process faster
 
+## Configuración (Opcional)
+
+Para utilizar la función de resumen por IA (`--ai`), necesitas una clave de API de Google Gemini. Puedes configurarla de dos maneras:
+
+### 1. Variable de entorno
+Define la variable `GOOGLE_API_KEY` en tu terminal:
+```bash
+export GOOGLE_API_KEY='tu_clave_aqui'
+```
+
+### 2. Archivo de configuración
+Crea un archivo en `~/.config/eml-rename/config.ini` con el siguiente contenido:
+```ini
+[auth]
+GOOGLE_API_KEY = tu_clave_aqui
+```

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-04-19 19:15+0200\n"
+"POT-Creation-Date: 2026-01-11 21:42+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,10 +23,49 @@ msgstr ""
 msgid "Developed by Mariano Muñoz 2022-{}"
 msgstr ""
 
+msgid "Script renames all eml files in a directory using mail metadata "
+msgstr ""
+
+msgid "Forces subject update when 'YYYYMMDD HHMM [from]' format is detected"
+msgstr ""
+
+#, python-brace-format
+msgid "Maximum length allowed to final name using 'YYYYMMDD HHMM [from]'. Default: {0}"
+msgstr ""
+
+msgid "Without this parameter files won't be renamed. Script only pretend the result"
+msgstr ""
+
+msgid "Use Gemini AI to summarize email content as subject"
+msgstr ""
+
+msgid "Delay between AI requests"
+msgstr ""
+
+msgid "Processing eml files"
+msgstr ""
+
+#, python-brace-format
+msgid "{0} files were renamed."
+msgstr ""
+
+#, python-brace-format
+msgid "Process was simulated, files weren't renamed. Use --save to rename {0} files."
+msgstr ""
+
+msgid "It took {}"
+msgstr ""
+
 msgid "(Without subject)"
 msgstr ""
 
 msgid "Error parsing subject"
+msgstr ""
+
+msgid "The 'google-genai' package is not installed. Please run 'pip install google-genai' or 'poetry install'."
+msgstr ""
+
+msgid "GOOGLE_API_KEY not found. Set it in environment or in ~/.config/eml-rename/config.ini"
 msgstr ""
 
 msgid "[Error detected. Won't be renamed]"
@@ -47,29 +86,5 @@ msgstr ""
 msgid "[Format detected. Not renamed]"
 msgstr ""
 
-msgid "Script renames all eml files in a directory using mail metadata "
-msgstr ""
-
-msgid "Forces subject update when 'YYYMMDD HHMM [from]' format is detected"
-msgstr ""
-
-#, python-brace-format
-msgid "Maximum length allowed to final name using 'YYYMMDD HHMM [from]'. Default: {0}"
-msgstr ""
-
-msgid "Without this parameter files won't be renamed. Script only pretend the result"
-msgstr ""
-
-msgid "Processing eml files"
-msgstr ""
-
-#, python-brace-format
-msgid "{0} files were renamed."
-msgstr ""
-
-#, python-brace-format
-msgid "Process was simulated, files weren't renamed. Use --save to rename {0} files."
-msgstr ""
-
-msgid "It took {}"
+msgid "vhs tool is needed. Look at https://github.com/charmbracelet/vhs"
 msgstr ""
