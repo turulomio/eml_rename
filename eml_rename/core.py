@@ -1,6 +1,7 @@
 from argparse import ArgumentParser, RawTextHelpFormatter
 
-from eml_rename.commons import EmlFile, signal_handler,__version__, __versiondate__, __versiondatetime__, _, argparse_epilog
+from eml_rename.commons import signal_handler,__version__, __versiondate__, __versiondatetime__, _, argparse_epilog
+from eml_rename.emlfile import EmlFile
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from glob import glob
@@ -38,7 +39,7 @@ def eml_rename(force=False, length=140, save=False, ia=False, ia_delay=2):
     with ThreadPoolExecutor(max_workers=1 if ia else cpu_count()+1) as executor:
             with tqdm(total=len(filenames), desc=_("Processing eml files")) as progress:
                 for filename in filenames:
-                        future=executor.submit(EmlFile, filename, ia)
+                        future=executor.submit(EmlFile, filename, length, ia)
                         from time import sleep
                         if ia:
                             sleep(ia_delay)
@@ -56,13 +57,13 @@ def eml_rename(force=False, length=140, save=False, ia=False, ia_delay=2):
     for i, f in enumerate(futures):
         o=f.result()
 
-        print(f"-- ({i+1}/{len(futures)}) ({o.detected['encoding']})-----------------------------------------")
+        print(f"-- ({i+1}/{len(futures)}) ({o.file_encoding})-----------------------------------------")
         print(o.path)
-        print(o.report(force, length, save))
+        print(o.report(force, save))
         if o.will_be_renamed(force):
             number_to_be_renamed+=1
         if save is True:
-            o.write(force, length)
+            o.write(force)
             
     print("-----------------------------------------------------------")
     print("")

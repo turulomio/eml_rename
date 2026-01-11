@@ -15,13 +15,15 @@ from .commons import get_google_api_key, get_system_localzone_name, _
 
 ## Class to work with eml file
 class EmlFile():
-    def __init__(self, path, ia=False):
+    def __init__(self, path, length, ia=False):
+        self.path=path
+        self.ia=ia
+        self.length=length
+        self.error_message=[]
+
         self.google_api_key=get_google_api_key()
         self.system_timezone=get_system_localzone_name()
         self.file_encoding=self.get_file_encoding()
-        self.path=path
-        self.ia=ia
-        self.error_message=[]
         self.dt=self.get_mail_datetime()
         self.from_=self.get_mail_from()
         self.body=self.get_mail_body()
@@ -29,12 +31,11 @@ class EmlFile():
             self.subject=self.get_mail_subject_with_ia()
         else:
             self.subject=self.get_mail_subject()
-
                 
     def get_file_encoding(self):        #Guessing file chart
         with open(self.path, "rb") as f:
             detected=detect(f.read(10000)) 
-            return self.detected["encoding"]
+            return detected["encoding"]
 
     def get_mail_from(self):
         #Parse file and load used metadata            
@@ -51,8 +52,8 @@ class EmlFile():
             try:
                 metadata=HeaderParser().parse(f)
                 dt_mail=parsedate_to_datetime(metadata["Date"])
-                if system_timezone in ["CEST", "CET"]: #Cest wasn't recognized by ZoneInfo
-                    system_timezone="Europe/Madrid"
+                if self.system_timezone in ["CEST", "CET"]: #Cest wasn't recognized by ZoneInfo
+                    self.system_timezone="Europe/Madrid"
                 dt=dt_mail.astimezone(ZoneInfo(self.system_timezone))
                 return dt
             except Exception as e:
@@ -61,7 +62,7 @@ class EmlFile():
 
     def get_mail_body(self):
         #Parse file and load used metadata            
-        with open(self.path, "r", encoding=self.detected["encoding"]) as f:
+        with open(self.path, "r", encoding=self.file_encoding) as f:
             try:
                 body = ""
                 f.seek(0)
@@ -76,17 +77,16 @@ class EmlFile():
                 else:
                     payload = msg.get_payload(decode=True)
                     if payload:
-                        body = payload.decode(self.detected["encoding"], errors='ignore')
+                        body = payload.decode(self.file_encoding, errors='ignore')
                 return body
             except Exception as e:
                 self.error_message.append(str(e))
 
 
 
-    def get_mail_subject(self):
-                #Parse file and load used metadata      
+    def get_mail_subject(self):      
         empty_answer= _("(Without subject)")     
-        with open(self.path, "r", encoding=self.detected["encoding"]) as f:
+        with open(self.path, "r", encoding=self.file_encoding) as f:
             try:
                 metadata=HeaderParser().parse(f)
                 if metadata["Subject"] is None:
@@ -102,7 +102,7 @@ class EmlFile():
                         
                 if r.strip()=="":
                     r= empty_answer
-                return r
+                return self.remove_illegal_chars(r)
             except:
                 self.error_message=_("Error parsing subject") + str(arr)
                 return empty_answer
@@ -154,8 +154,14 @@ class EmlFile():
 
 
                 
-    def final_name(self, length):
-        return f"{casts.dtaware2str(self.dt,  '%Y%m%d %H%M')} [{self.from_}] {self.subject}"[:length-4]+".eml"
+    def final_name(self):
+        basename=f"{casts.dtaware2str(self.dt, '%Y%m%d %H%M')} [{self.from_}] {self.subject}"
+        print(basename, len(basename), self.length)
+        if len(basename)>self.length:
+            basename=basename[0:self.length-4]
+        print(basename)
+        return basename+".eml"
+
 
     def remove_illegal_chars(self, s):
         illegal_chars = '<>:"/\\|?*\n\t-_()[]{}¿'
@@ -168,58 +174,46 @@ class EmlFile():
         return s
 
     ##Method that detects if path has eml_rename format and returns a Boolean
-    def filename_format_detected(self):
-        if hasattr(self, "_filename_format_detected"):
-            return self._filename_format_detected
-            
+    def filename_format_detected(self):  
         arr=self.path.split(" ")
         if len(arr)<3:
-            self._filename_format_detected= False
-            return self._filename_format_detected
+            return False
         
-        if len(arr[0])!=8:
-            self._filename_format_detected=False
-            return self._filename_format_detected
-        if len(arr[1])!=4:
-            self._filename_format_detected=False
-            return self._filename_format_detected
+        if len(arr[0])!=8: #date
+            return False
+        
+        if len(arr[1])!=4: #hour
+            return False
             
         try:
             datetime.strptime( arr[0]+" "+arr[1], "%Y%m%d %H%M" )
         except:
-            self._filename_format_detected=False
-            return self._filename_format_detected
+            return False
             
-        if not arr[2].startswith("[") or not arr[2].endswith("]") or not "@" in arr[2][1:-1]:
-            self._filename_format_detected=False
-            return self._filename_format_detected
-        self._filename_format_detected=True
-        return self._filename_format_detected
+        if not arr[2].startswith("[") or not arr[2].endswith("]") or not "@" in arr[2][1:-1]: #mail in brackets
+            return False
+        
+        return True
         
     def will_be_renamed(self, force):
-        if hasattr(self, "_will_be_renamed"):
-            return self._will_be_renamed
-        if self.error_message!="":
-            self._will_be_renamed= False
-            return self._will_be_renamed
+        if len(self.error_message)>0:
+            return False
         if force is False and self.filename_format_detected() is True:
-            self._will_be_renamed=  False
-            return self._will_be_renamed
-        self._will_be_renamed=  True
-        return self._will_be_renamed
+            return False
+        return True
 
-    def report(self, force, length, save):
-        if self.error_message!="":
+    def report(self, force, save):
+        if len(self.error_message)>0:
             aclaration=_("[Error detected. Won't be renamed]") if save is False else _("[Error detected. Not Renamed]") 
             return  colors.red(self.error_message)+  " " + colors.blue(aclaration)
         if self.will_be_renamed(force):
             aclaration=_("[Will be renamed]") if save is False else _("[Renamed]") 
-            return colors.green(self.final_name(length)) +  " " + colors.blue(aclaration)
+            return colors.green(self.final_name()) +  " " + colors.blue(aclaration)
         else:
             aclaration=_("[Format detected. Won't de renamed]") if save is False else _("[Format detected. Not renamed]") 
-            return colors.yellow(self.final_name(length))+  " " + colors.blue(aclaration)
+            return colors.yellow(self.final_name())+  " " + colors.blue(aclaration)
             
-    def write(self, force, length):
+    def write(self, force):
         if self.will_be_renamed(force):
-            rename(self.path, self.final_name(length))
+            rename(self.path, self.final_name())
             
