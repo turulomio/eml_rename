@@ -115,13 +115,15 @@ class EmlFile():
                 if not api_key:
                     raise Exception(_("GOOGLE_API_KEY not found. Set it in environment or in ~/.config/eml-rename/config.ini"))
                 client = genai.Client(api_key=api_key)
-                prompt = f"""Summarize the following email content in a single sentence, maximum 140 characters, to be used as a file name subject. The sentence must be in spanish. 
+                prompt = f"""Summarize the following email content in a single sentence, maximum 100 characters, to be used as a file name subject. The sentence must be in spanish. 
 
                 Trata de quitar articulos y letras innecesaria. Debe dar un esquema de contenido. No detalles
 
                 Quiero la idea fuerza de forma esquemática
                 
                 No pongas un punto al final.
+                
+                Asegúrate de que la respuesta esté codificada en UTF-8.
 
                 Content: '{body}'"""
 
@@ -131,9 +133,8 @@ class EmlFile():
                 #     print(f"Found model: {m.name}")
 
                 response = client.models.generate_content(model='gemma-3n-e4b-it', contents=prompt)
-                print(prompt, response.text)
                 if response and response.text:
-                    return response.text.strip().replace("\n", " ")[:140]
+                    return self.remove_illegal_chars(response.text)
             except Exception as e:
                 self.error_message = f"AI Error: {str(e)}"
 
@@ -154,16 +155,20 @@ class EmlFile():
             return r
         except:
             self.error_message=_("Error parsing subject") + str(arr)
-            return subject
+            return self.remove_illegal_chars(subject)
                 
     def final_name(self, length):
-        r= f"{casts.dtaware2str(self.dt,  '%Y%m%d %H%M')} [{self.from_}] {self.subject}"[:length-4] +".eml"
-        # Remove illegal filename characters using a translation table for better performance
-        illegal_chars = '<>:"/\\|?*\n\t'
-        r = r.translate(str.maketrans('', '', illegal_chars))
-        return r
+        return f"{casts.dtaware2str(self.dt,  '%Y%m%d %H%M')} [{self.from_}] {self.subject}"[:length-4]+".eml"
 
-
+    def remove_illegal_chars(self, s):
+        illegal_chars = '<>:"/\\|?*\n\t-_()[]{}¿'
+        s = s.strip()
+        s = s[:-1] if s[len(s)-1]=="." else s
+        s = s.translate(str.maketrans('', '', illegal_chars))
+        for i in range(5):
+            s = s.replace("..", ".")
+            s = s.replace("  ", " ")
+        return s
 
     ##Method that detects if path has eml_rename format and returns a Boolean
     def filename_format_detected(self):
