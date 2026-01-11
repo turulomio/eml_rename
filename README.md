@@ -13,6 +13,9 @@ I needed this tool to classify and order my mail files at work.
 
 I took this idea from an article of Armand Niculescu (August 20, 2014) at https://www.media-division.com/using-python-to-batch-rename-email-files/ , so thanks an I hope you like this code.
 
+## Installation
+`pip install eml_rename`
+
 ## Features
 
 <img src="https://raw.githubusercontent.com/turulomio/eml_rename/master/doc/command.gif?raw=true" width="100%"></img>
