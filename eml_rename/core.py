@@ -3,7 +3,7 @@ from argparse import ArgumentParser, RawTextHelpFormatter
 from chardet import detect
 from colorama import init as colorama_init, Fore, Style
 
-from concurrent.futures import ProcessPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from email.parser import HeaderParser
 from email.utils import parsedate_to_datetime, parseaddr
@@ -222,7 +222,7 @@ def main():
     
     eml_rename(args.force, args.length, args.save)
 
-def eml_rename(force, length, save):        
+def eml_rename(force=False, length=140, save=False):        
     start=datetime.now()
     
     filenames=[]
@@ -231,7 +231,7 @@ def eml_rename(force, length, save):
 
     
     futures=[]
-    with ProcessPoolExecutor(max_workers=cpu_count()+1) as executor:
+    with ThreadPoolExecutor(max_workers=cpu_count()+1) as executor:
             with tqdm(total=len(filenames), desc=_("Processing eml files")) as progress:
                 for filename in filenames:
                         future=executor.submit(EmlFile, filename)

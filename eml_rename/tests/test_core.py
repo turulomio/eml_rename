@@ -2,7 +2,7 @@ from pytest import fixture, raises
 from tempfile import mkdtemp
 from shutil import rmtree
 from os import path,chdir
-from renamebyreplace.core import renamebyreplace, main
+from eml_rename.core import eml_rename, main
 
 @fixture
 def test_fs(monkeypatch):
@@ -14,9 +14,9 @@ def test_fs(monkeypatch):
     # Create a structure inside the temp directory
     fs = {
         "test_dir": test_dir,
-        "mail1.eml": path.join(test_dir, "file a.txt"),
-        "mail2.eml": path.join(test_dir, "file b.txt"),
-        "mail3.eml": path.join(test_dir, "file c.txt"),
+        "mail1.eml": path.join(test_dir, "mail1.eml"),
+        "mail2.eml": path.join(test_dir, "mail2.eml"),
+        "mail3.eml": path.join(test_dir, "mail3.eml"),
     }
     mail1="""From: "Jane Smith" <jane.smith@example.org>
 Date: Fri, 15 Sep 2023 09:45:00 +0200
@@ -67,28 +67,27 @@ def create_file(name, text):
         f.write(text)
 
 def test_emlrename(test_fs):
-    renamebyreplace("a", "b", True, False)
-    assert path.exists(test_fs["b"])
-    assert not path.exists(test_fs["a"])
-    #Undo
-    renamebyreplace("a", "b", True, True)
-    assert path.exists(test_fs["a"])
-    assert not path.exists(test_fs["b"]) #In this example b is lost
+    eml_rename(save=True)
+    assert not path.exists(test_fs["mail1.eml"])
+    assert not path.exists(test_fs["mail2.eml"])
+    assert not path.exists(test_fs["mail3.eml"])
+    assert path.exists("20230915 0945 [jane.smith@example.org] Project Update EML Rename.eml")
+    assert path.exists("20240522 1400 [info@conciencia-global.org] La urgente realidad del cambio climatico.eml")
+    assert path.exists("20240522 1530 [skeptic@example.com] Re La urgente realidad del cambio climatico.eml")
 
-
-def test_main_with_no_args(monkeypatch):
+def test_main_with_help_args(monkeypatch):
     """Test that main exits when no arguments are provided."""
     # Prevent sys.argv from being used by argparse
-    monkeypatch.setattr('sys.argv', ['renamebyreplace'])
+    monkeypatch.setattr('sys.argv', ['eml_rename', "--help"])
     with raises(SystemExit) as e:
         main()
     assert e.type == SystemExit
-    assert e.value.code == 2
+    assert e.value.code == 0
 
-def test_main_with_args(monkeypatch, test_fs):
-    """Test that main exits when no arguments are provided."""
-    # Prevent sys.argv from being used by argparse"
-    monkeypatch.setattr('sys.argv', ['renamebyreplace', "--search", "a", "--replace", "b", "--write"])
-    main()
-    assert path.exists(test_fs["b"])
-    assert not path.exists(test_fs["a"])
+# def test_main_with_no_args(monkeypatch, test_fs):
+#     """Test that main exits when no arguments are provided."""
+#     # Prevent sys.argv from being used by argparse"
+#     monkeypatch.setattr('sys.argv', ['eml_rename'])
+#     main()
+#     assert path.exists(test_fs["mail1.eml"])
+#     assert not path.exists(test_fs["mail1.eml"])
