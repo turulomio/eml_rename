@@ -27,7 +27,7 @@ I took this idea from an article of Armand Niculescu (August 20, 2014) at https:
 
 ## Configuración (Opcional)
 
-Para utilizar la función de resumen por IA (`--ia`), necesitas una clave de API de Google Gemini. Puedes configurarla de dos maneras:
+Para utilizar la función de resumen por IA (`--ai`), necesitas una clave de API de Google Gemini. Puedes configurarla de dos maneras:
 
 ### 1. Variable de entorno
 Define la variable `GOOGLE_API_KEY` en tu terminal:

@@ -1,15 +1,15 @@
-# Spanish translations for PACKAGE package
-# Traducciones al español para el paquete PACKAGE.
-# Copyright (C) 2015 THE PACKAGE'S COPYRIGHT HOLDER
+# Spanish translations for eml_rename package
+# Traducciones al español para el paquete eml_rename.
+# Copyright (C) 2022-2025 Mariano Muñoz
 # This file is distributed under the same license as the PACKAGE package.
 #
 # root <turulomio@yahoo.es>, 2015, 2020.
 msgid ""
 msgstr ""
-"Project-Id-Version: TooManyFiles\n"
+"Project-Id-Version: eml_rename\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-06 07:28+0100\n"
-"PO-Revision-Date: 2020-04-03 08:54+0200\n"
+"POT-Creation-Date: 2026-01-11 21:38+0100\n"
+"PO-Revision-Date: 2025-01-24 12:00+0100\n"
 "Last-Translator: trabajo <turulomio@yahoo.es>\n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
 "Language: es\n"
@@ -25,11 +25,50 @@ msgstr "Has pulsado 'Ctrl+C', saliendo..."
 msgid "Developed by Mariano Muñoz 2022-{}"
 msgstr "Desarrollado por Mariano Muñoz 2022-{}"
 
+msgid "Script renames all eml files in a directory using mail metadata "
+msgstr "Este comando renombra todos los ficheros eml en un directorio usando los metadatos del correo"
+
+msgid "Forces subject update when 'YYYYMMDD HHMM [from]' format is detected"
+msgstr "Fuerza la modificación del asunto cuando el formato 'YYYYMMDD HHMM [Desde]' es detectado"
+
+#, python-brace-format
+msgid "Maximum length allowed to final name using 'YYYYMMDD HHMM [from]'. Default: {0}"
+msgstr "Máxima longitud permitida al nombre final usando 'YYYYMMDD HHMM [Desde]'. Por defecto: {0}"
+
+msgid "Without this parameter files won't be renamed. Script only pretend the result"
+msgstr "Sin este parámetro los ficheros no serán renombrados. El comando solo adivina el resultado"
+
+msgid "Use Gemini AI to summarize email content as subject"
+msgstr "Usa la IA de Gemini para resumir el contenido del correo como asunto"
+
+msgid "Delay between AI requests"
+msgstr "Retraso entre peticiones de IA"
+
+msgid "Processing eml files"
+msgstr "Procesando ficheros eml"
+
+#, python-brace-format
+msgid "{0} files were renamed."
+msgstr "{0} ficheros fueron renombrados."
+
+#, python-brace-format
+msgid "Process was simulated, files weren't renamed. Use --save to rename {0} files."
+msgstr "El proceso fue simulado, los ficheros no fueron renombrados. Usa --save para renombrar {0} ficheros."
+
+msgid "It took {}"
+msgstr "Tardó {}"
+
 msgid "(Without subject)"
 msgstr "(sin asunto)"
 
 msgid "Error parsing subject"
 msgstr "Error al obtener el asunto"
+
+msgid "The 'google-genai' package is not installed. Please run 'pip install google-genai' or 'poetry install'."
+msgstr "El paquete 'google-genai' no está instalado. Por favor, ejecuta 'pip install google-genai' o 'poetry install'."
+
+msgid "GOOGLE_API_KEY not found. Set it in environment or in ~/.config/eml-rename/config.ini"
+msgstr "GOOGLE_API_KEY no encontrada. Configúrala en el entorno o en ~/.config/eml-rename/config.ini"
 
 msgid "[Error detected. Won't be renamed]"
 msgstr "[Error detectado. No será renombrado]"
@@ -49,30 +88,5 @@ msgstr "[Formato detectado. No será renombrado]"
 msgid "[Format detected. Not renamed]"
 msgstr "[Formato detectado. No renombrado]"
 
-msgid "Script renames all eml files in a directory using mail metadata "
-msgstr "Este comando renombra todos los ficheros eml en un directorio usando los metadatos del correo"
-
-msgid "Forces subject update when 'YYYMMDD HHMM [from]' format is detected"
-msgstr "Fuerza la modificación del asunto cuando el formato 'YYYYMMDD HHMM [Desde]' es detectado"
-
-#, python-brace-format
-msgid "Maximum length allowed to final name using 'YYYMMDD HHMM [from]'. Default: {0}"
-msgstr "Máxima longitud permitida al nombre final usando 'YYYYMMDD HHMM [Desde]'. Por defecto: {0}"
-
-msgid "Without this parameter files won't be renamed. Script only pretend the result"
-msgstr "Sin este parámetro los ficheros no serán renombrados. El comando solo adivina el resultado"
-
-msgid "Processing eml files"
-msgstr "Procesando ficheros eml"
-
-#, python-brace-format
-msgid "{0} files were renamed."
-msgstr "{0} ficheros fueron renombrados."
-
-#, python-brace-format
-msgid "Process was simulated, files weren't renamed. Use --save to rename {0} files."
-msgstr "El proceso fue simulado, los ficheros no fueron renombrados. Usa --save para renombrar {0} ficheros."
-
-msgid "It took {}"
-msgstr "Tardó {}"
-
+msgid "vhs tool is needed. Look at https://github.com/charmbracelet/vhs"
+msgstr "Se necesita la herramienta vhs. Mira en https://github.com/charmbracelet/vhs"
