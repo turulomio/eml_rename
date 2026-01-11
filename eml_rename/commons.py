@@ -35,33 +35,6 @@ def argparse_epilog():
 ## Returns a formated string of a dtaware string formatting with a zone name
 ## @param dt datetime aware object
 ## @return String
-def dtaware2string(dt, format):
-    if casts.is_naive(dt)==True:
-        print("A dtaware is needed for {}".format(dt))
-    else:
-        return dtnaive2string(dt, format)
-
-## Returns a formated string of a dtaware string formatting with a zone name
-## @param dt datetime aware object
-## @param format String in ["%Y-%m-%d", "%Y-%m-%d %H:%M:%S", "%Y%m%d %H%M", "%Y%m%d%H%M"]
-## @return String
-def dtnaive2string(dt, format):
-    allowed=["%Y-%m-%d", "%Y-%m-%d %H:%M:%S", "%Y%m%d %H%M", "%Y%m%d%H%M", "JsUtcIso"]
-    if dt==None:
-        return "None"
-    elif format in allowed:
-        if format=="%Y-%m-%d":
-            return dt.strftime("%Y-%m-%d")
-        elif format=="%Y-%m-%d %H:%M:%S": 
-            return dt.strftime("%Y-%m-%d %H:%M:%S")
-        elif format=="%Y%m%d %H%M": 
-            return dt.strftime("%Y%m%d %H%M")
-        elif format=="%Y%m%d%H%M":
-            return dt.strftime("%Y%m%d%H%M")
-        elif format=="JsUtcIso":
-            return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
-    else:
-        print("I can't convert this format '{}'. I only support this {}".format(format, allowed))
 
 
 def get_system_localzone_name():
@@ -114,7 +87,7 @@ class EmlFile():
             return subject
                 
     def final_name(self, length):
-        r= f"{dtaware2string(self.dt,  '%Y%m%d %H%M')} [{self.from_}] {self.subject}"[:length-4] +".eml"
+        r= f"{casts.dtaware2str(self.dt,  '%Y%m%d %H%M')} [{self.from_}] {self.subject}"[:length-4] +".eml"
         sub=""
         r=r.replace("<", sub)
         r=r.replace(">", sub)
