@@ -20,11 +20,12 @@ def main():
     parser.add_argument('--force', help=_("Forces subject update when 'YYYMMDD HHMM [from]' format is detected"), action="store_true", default=False)
     parser.add_argument('--length', help=_("Maximum length allowed to final name using 'YYYMMDD HHMM [from]'. Default: {0}").format(default_length), action="store", default=default_length,  type=int)
     parser.add_argument('--save', help=_("Without this parameter files won't be renamed. Script only pretend the result"), action="store_true", default=False)
+    parser.add_argument('--ia', help=_("Use Gemini AI to summarize email content as subject"), action="store_true", default=False)
     args=parser.parse_args()
     
-    eml_rename(args.force, args.length, args.save)
+    eml_rename(args.force, args.length, args.save, args.ia)
 
-def eml_rename(force=False, length=140, save=False):        
+def eml_rename(force=False, length=140, save=False, ia=False):        
     start=datetime.now()
     
     filenames=[]
@@ -33,10 +34,12 @@ def eml_rename(force=False, length=140, save=False):
 
     
     futures=[]
-    with ThreadPoolExecutor(max_workers=cpu_count()+1) as executor:
+    with ThreadPoolExecutor(max_workers=1) as executor:
             with tqdm(total=len(filenames), desc=_("Processing eml files")) as progress:
                 for filename in filenames:
-                        future=executor.submit(EmlFile, filename)
+                        future=executor.submit(EmlFile, filename, ia)
+                        from time import sleep
+                        sleep(12)
                         future.add_done_callback(lambda p: progress.update())
                         futures.append(future)
 

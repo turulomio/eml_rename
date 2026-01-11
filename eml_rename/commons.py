@@ -1,12 +1,12 @@
 from chardet import detect
-from colorama import init as Fore, Style
+from colorama import Fore, Style
 from datetime import datetime
 from email.parser import HeaderParser
 from email.utils import parsedate_to_datetime, parseaddr
 from email.header import decode_header
 from gettext import translation
 from importlib.resources import files
-from os import rename
+from os import rename, environ
 from pydicts import colors, casts
 
 from sys import exit
@@ -42,7 +42,7 @@ def get_system_localzone_name():
 
 ## Class to work with eml file
 class EmlFile():
-    def __init__(self, path):
+    def __init__(self, path, ia=False):
         self.path=path
         
         self.error_message=""
@@ -61,14 +61,57 @@ class EmlFile():
                 if system_timezone in ["CEST", "CET"]: #Cest wasn't recognized by ZoneInfo
                     system_timezone="Europe/Madrid"
                 self.dt=dt_mail.astimezone(ZoneInfo(system_timezone))
-                self.subject=self.parse_subject(metadata["Subject"])
+                
+                body = ""
+                if ia:
+                    f.seek(0)
+                    from email import message_from_string
+                    msg = message_from_string(f.read())
+                    if msg.is_multipart():
+                        for part in msg.walk():
+                            if part.get_content_type() == "text/plain":
+                                payload = part.get_payload(decode=True)
+                                if payload:
+                                    body = payload.decode(self.detected["encoding"], errors='ignore')
+                                break
+                    else:
+                        payload = msg.get_payload(decode=True)
+                        if payload:
+                            body = payload.decode(self.detected["encoding"], errors='ignore')
+
+                self.subject=self.parse_subject(metadata["Subject"], ia=ia, body=body)
             except Exception as e:
-                self.error_message=e
+                self.error_message=str(e)
                 
     
 
     #Returns [(b'This is a subject', 'iso-8859-1')], codification can be None
-    def parse_subject(self, subject):
+    def parse_subject(self, subject, ia=False, body=""):
+        if ia and body:
+            try:
+                try:
+                    from google import genai
+                except ImportError:
+                    raise Exception(_("The 'google-genai' package is not installed. Please run 'pip install google-genai' or 'poetry install'."))
+
+                api_key = environ.get("GOOGLE_API_KEY")
+                if not api_key:
+                    raise Exception("GOOGLE_API_KEY environment variable not set")
+                client = genai.Client(api_key=api_key)
+                prompt = f"Summarize the following email content in a single sentence, maximum 140 characters, to be used as a file name subject. Content: {body}"
+                
+                # # List all available models to console
+                # for m in client.models.list():
+                #     print(f"Found model: {m.name}")
+
+                response = client.models.generate_content(model='gemini-3-flash-preview', contents=prompt)
+                if response and response.text:
+                    return response.text.strip().replace("\n", " ")[:140]
+            except Exception as e:
+                self.error_message = f"AI Error: {str(e)}"
+
+        if subject is None:
+            return _("(Without subject)")
         arr=decode_header(subject)
         r=""
         try:
@@ -88,18 +131,9 @@ class EmlFile():
                 
     def final_name(self, length):
         r= f"{casts.dtaware2str(self.dt,  '%Y%m%d %H%M')} [{self.from_}] {self.subject}"[:length-4] +".eml"
-        sub=""
-        r=r.replace("<", sub)
-        r=r.replace(">", sub)
-        r=r.replace(":", sub)
-        r=r.replace('"', sub)
-        r=r.replace("/", sub)
-        r=r.replace("\\", sub)
-        r=r.replace("|", sub)
-        r=r.replace("?", sub)
-        r=r.replace("*", sub)
-        r=r.replace("\n", sub)
-        r=r.replace("\t", sub)
+        # Remove illegal filename characters using a translation table for better performance
+        illegal_chars = '<>:"/\\|?*\n\t'
+        r = r.translate(str.maketrans('', '', illegal_chars))
         return r
 
 
