@@ -7,7 +7,7 @@ from email.header import decode_header
 from gettext import translation
 from importlib.resources import files
 from os import rename
-from pydicts import colors
+from pydicts import colors, casts
 
 from sys import exit
 from zoneinfo import ZoneInfo
@@ -32,22 +32,11 @@ def signal_handler( signal, frame):
 def argparse_epilog():
     return _("Developed by Mariano Muñoz 2022-{}").format(__versiondate__.year)
 
-
-## Returns if a datetime is aware
-def is_aware(dt):
-    if dt.tzinfo is None or dt.tzinfo.utcoffset(dt) is None:
-        return False
-    return True
-
-## Returns if a datetime is naive
-def is_naive(dt):
-    return not is_aware(dt)
-
 ## Returns a formated string of a dtaware string formatting with a zone name
 ## @param dt datetime aware object
 ## @return String
 def dtaware2string(dt, format):
-    if is_naive(dt)==True:
+    if casts.is_naive(dt)==True:
         print("A dtaware is needed for {}".format(dt))
     else:
         return dtnaive2string(dt, format)
@@ -186,13 +175,13 @@ class EmlFile():
     def report(self, force, length, save):
         if self.error_message!="":
             aclaration=_("[Error detected. Won't be renamed]") if save is False else _("[Error detected. Not Renamed]") 
-            return  red(self.error_message)+  " " + colors.blue(aclaration)
+            return  colors.red(self.error_message)+  " " + colors.blue(aclaration)
         if self.will_be_renamed(force):
             aclaration=_("[Will be renamed]") if save is False else _("[Renamed]") 
             return colors.green(self.final_name(length)) +  " " + colors.blue(aclaration)
         else:
             aclaration=_("[Format detected. Won't de renamed]") if save is False else _("[Format detected. Not renamed]") 
-            return yellow(self.final_name(length))+  " " + colors.blue(aclaration)
+            return colors.yellow(self.final_name(length))+  " " + colors.blue(aclaration)
             
     def write(self, force, length):
         if self.will_be_renamed(force):
