@@ -1,3 +1,4 @@
+from configparser import ConfigParser
 from chardet import detect
 from colorama import Fore, Style
 from datetime import datetime
@@ -7,6 +8,7 @@ from email.header import decode_header
 from gettext import translation
 from importlib.resources import files
 from os import rename, environ
+from pathlib import Path
 from pydicts import colors, casts
 
 from sys import exit
@@ -31,6 +33,21 @@ def signal_handler( signal, frame):
 ## @return String
 def argparse_epilog():
     return _("Developed by Mariano Muñoz 2022-{}").format(__versiondate__.year)
+
+def get_google_api_key():
+    """Busca la API Key en el entorno o en el archivo de configuración."""
+    # 1. Prioridad a la variable de entorno
+    api_key = environ.get("GOOGLE_API_KEY")
+    if api_key:
+        return api_key
+
+    # 2. Buscar en ~/.config/eml-rename/config.ini
+    config_path = Path.home() / ".config" / "eml-rename" / "config.ini"
+    if config_path.exists():
+        config = ConfigParser()
+        config.read(config_path)
+        return config.get("auth", "GOOGLE_API_KEY", fallback=None)
+    return None
 
 ## Returns a formated string of a dtaware string formatting with a zone name
 ## @param dt datetime aware object
@@ -94,9 +111,9 @@ class EmlFile():
                 except ImportError:
                     raise Exception(_("The 'google-genai' package is not installed. Please run 'pip install google-genai' or 'poetry install'."))
 
-                api_key = environ.get("GOOGLE_API_KEY")
+                api_key = get_google_api_key()
                 if not api_key:
-                    raise Exception("GOOGLE_API_KEY environment variable not set")
+                    raise Exception(_("GOOGLE_API_KEY not found. Set it in environment or in ~/.config/eml-rename/config.ini"))
                 client = genai.Client(api_key=api_key)
                 prompt = f"""Summarize the following email content in a single sentence, maximum 140 characters, to be used as a file name subject. The sentence must be in spanish. 
 
@@ -104,9 +121,9 @@ class EmlFile():
 
                 Quiero la idea fuerza de forma esquemática
                 
-                Nopongas un punto al final.
+                No pongas un punto al final.
 
-                Content: {body}"""
+                Content: '{body}'"""
 
                 
                 # # List all available models to console
