@@ -21,11 +21,11 @@ def main():
     parser.add_argument('--force', help=_("Forces subject update when 'YYYMMDD HHMM [from]' format is detected"), action="store_true", default=False)
     parser.add_argument('--length', help=_("Maximum length allowed to final name using 'YYYMMDD HHMM [from]'. Default: {0}").format(default_length), action="store", default=default_length,  type=int)
     parser.add_argument('--save', help=_("Without this parameter files won't be renamed. Script only pretend the result"), action="store_true", default=False)
-    parser.add_argument('--ia', help=_("Use Gemini AI to summarize email content as subject"), action="store_true", default=False)
-    parser.add_argument('--ia_delay', help=_("Delay between AI requests"), action="store", type=int, default=2)
+    parser.add_argument('--ai', help=_("Use Gemini AI to summarize email content as subject"), action="store_true", default=False)
+    parser.add_argument('--ai_delay', help=_("Delay between AI requests"), action="store", type=int, default=2)
     args=parser.parse_args()
     
-    eml_rename(args.force, args.length, args.save, args.ia)
+    eml_rename(args.force, args.length, args.save, args.ai, args.ai_delay)
 
 def eml_rename(force=False, length=140, save=False, ia=False, ia_delay=2):        
     start=datetime.now()
