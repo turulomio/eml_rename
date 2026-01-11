@@ -1,6 +1,6 @@
 [project]
 name = "eml-rename"
-version = "1.0.0"
+version = "1.0.1"
 description = "Script renames all eml files in a directory using mail metadata"
 authors = [{name = "turulomio", email = "turulomio@yahoo.es"}]
 license = {text = "GPL-3.0 license"}
