@@ -1,4 +1,4 @@
-from .__init__ import __versiondate__, __version__
+from .__init__ import __versiondate__, __version__, _
 from argparse import ArgumentParser, RawTextHelpFormatter
 from chardet import detect
 from colorama import init as colorama_init, Fore, Style
@@ -19,11 +19,6 @@ from sys import exit
 from tqdm import tqdm
 from zoneinfo import ZoneInfo
 
-try:
-    t=translation('eml_rename', files("eml_rename") / "locale")
-    _=t.gettext
-except:
-    _=str
     
 def signal_handler( signal, frame):
         print(_("You pressed 'Ctrl+C', exiting..."))

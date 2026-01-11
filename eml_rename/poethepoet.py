@@ -1,5 +1,7 @@
 from eml_rename import __version__
-from os import system
+from os import system, chdir
+from shutil import which
+
 
 
 def release():
@@ -30,3 +32,15 @@ def translate():
 	system("msgmerge -N --no-wrap -U eml_rename/locale/es.po eml_rename/locale/eml_rename.pot")
 	system("msgfmt -cv -o eml_rename/locale/es/LC_MESSAGES/eml_rename.mo eml_rename/locale/es.po")
 	system("msgfmt -cv -o eml_rename/locale/en/LC_MESSAGES/eml_rename.mo eml_rename/locale/en.po")
+def coverage():
+    system("coverage run -m pytest && coverage report && coverage html")
+
+def video():
+    # Comprobaciones
+    vhs=which("vhs")
+    if vhs is None: 
+        print(_("vhs tool is needed. Look at https://github.com/charmbracelet/vhs"))
+        exit(1)
+
+    chdir("doc")
+    system(f"{vhs} command.tape")

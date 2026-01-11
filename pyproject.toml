@@ -10,6 +10,7 @@ dependencies = [
     "colorama>=0.4.6",
     "chardet>=5.2.0",
     "tqdm>=4.67.1",
+    "pydicts (>=1.1.0,<2.0.0)",
 ]
 
 
