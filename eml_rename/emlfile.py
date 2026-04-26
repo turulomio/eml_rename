@@ -8,7 +8,7 @@ from os import rename
 from pathlib import Path
 from pydicts import colors, casts
 from zoneinfo import ZoneInfo
-from .commons import get_google_api_key, get_system_localzone_name, _
+from .commons import get_google_api_key, get_system_timezone_name, _
 
 
 ## Class to work with eml file
@@ -22,7 +22,7 @@ class EmlFile():
         self.ia_delay = ia_delay # Store AI delay
 
         self.google_api_key=get_google_api_key()
-        self.system_timezone=get_system_localzone_name()
+        self.system_timezone=get_system_timezone_name()
         self.file_encoding=self.get_file_encoding()
         self.dt=self.get_mail_datetime()
         self.from_=self.get_mail_from()
@@ -55,7 +55,7 @@ class EmlFile():
             try:
                 metadata=HeaderParser().parse(f)
                 dt_mail=parsedate_to_datetime(metadata["Date"])
-                dt=dt_mail.astimezone(ZoneInfo(self.system_timezone))
+                dt=casts.dtaware_changes_tz(dt_mail, self.system_timezone)
                 return dt
             except Exception as e:
                 self.error_message.append(str(e))
