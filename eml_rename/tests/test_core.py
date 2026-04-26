@@ -11,9 +11,8 @@ def test_fs(monkeypatch):
     # monkeypatch.setattr('builtins.print', lambda *args, **kwargs: None)
     
     # Force timezone to CET for testing purposes
-    monkeypatch.setenv("TZ", "CET")
-    import time
-    time.tzset()
+    
+    monkeypatch.setattr("eml_rename.emlfile.get_system_timezone_name", lambda: "Europe/Berlin")
     test_dir = mkdtemp()
     monkeypatch.chdir(test_dir)
     # Create a structure inside the temp directory
@@ -69,8 +68,6 @@ Stop sending me this garbage!
     yield fs
 
     # Teardown: remove the temporary directory
-    # Restore original timezone after test
-    time.tzset()
     rmtree(test_dir)
 
 def create_file(name, text):
