@@ -43,7 +43,7 @@ def get_google_api_key():
 
 def get_system_timezone_name():
     """
-        Obtiene el nombre de
+        Obtiene el nombre del timezone del systema
     """
     tzset()
     return tzname[0]
