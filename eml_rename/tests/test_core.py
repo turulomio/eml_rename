@@ -1,6 +1,6 @@
 from pytest import fixture, raises
 from tempfile import mkdtemp
-from shutil import rmtree
+from shutil import rmtree, copyfile
 from os import path,chdir
 from eml_rename.core import eml_rename, main
 
@@ -9,6 +9,11 @@ def test_fs(monkeypatch):
     """Set up a temporary directory with a file structure for each test and changes into it."""
     # # Suppress print output for all tests using this fixture
     # monkeypatch.setattr('builtins.print', lambda *args, **kwargs: None)
+    
+    # Force timezone to CET for testing purposes
+    monkeypatch.setenv("TZ", "CET")
+    import time
+    time.tzset()
     test_dir = mkdtemp()
     monkeypatch.chdir(test_dir)
     # Create a structure inside the temp directory
@@ -64,6 +69,8 @@ Stop sending me this garbage!
     yield fs
 
     # Teardown: remove the temporary directory
+    # Restore original timezone after test
+    time.tzset()
     rmtree(test_dir)
 
 def create_file(name, text):
