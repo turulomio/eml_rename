@@ -6,6 +6,7 @@ from email import message_from_string
 from email.parser import HeaderParser
 from email.utils import parsedate_to_datetime, parseaddr
 from email.header import decode_header
+from time import sleep # Added for AI delay
 from os import rename, environ
 from pathlib import Path
 from pydicts import colors, casts
@@ -15,11 +16,13 @@ from .commons import get_google_api_key, get_system_localzone_name, _
 
 ## Class to work with eml file
 class EmlFile():
-    def __init__(self, path, length, ia=False):
+    def __init__(self, path, length, ia=False, force=False, ia_delay=2):
         self.path=path
-        self.ia=ia
+        self.ia_requested=ia # Store if AI was requested
         self.length=length
         self.error_message=[]
+        self.force = force # Store the force parameter
+        self.ia_delay = ia_delay # Store AI delay
 
         self.google_api_key=get_google_api_key()
         self.system_timezone=get_system_localzone_name()
@@ -27,7 +30,10 @@ class EmlFile():
         self.dt=self.get_mail_datetime()
         self.from_=self.get_mail_from()
         self.body=self.get_mail_body()
-        if self.ia:
+        
+        # Determine if AI should be used for subject generation
+        # AI should only be used if it was requested AND the file is not already in the target format (or force is True)
+        if self.ia_requested and not (not self.force and self.filename_format_detected()):
             self.subject=self.get_mail_subject_with_ia()
         else:
             self.subject=self.get_mail_subject()
@@ -105,6 +111,33 @@ class EmlFile():
                 self.error_message=_("Error parsing subject") + str(arr)
                 return empty_answer
 
+    def _get_prefix_from_filename(self, filename):
+        """
+        Extracts the 'YYYYMMDD HHMM [From]' part from a filename if it matches the pattern.
+        Returns the prefix string or None.
+        """
+        file_stem = Path(filename).stem # Get filename without extension
+        arr = file_stem.split(" ", 3) # Split at most 3 times to get date, time, from, and rest
+        if len(arr) < 3:
+            return None # Not enough parts
+        
+        date_part = arr[0]
+        time_part = arr[1]
+        from_part = arr[2]
+
+        if len(date_part) != 8 or len(time_part) != 4:
+            return None
+        
+        try:
+            datetime.strptime(date_part + " " + time_part, "%Y%m%d %H%M")
+        except ValueError:
+            return None
+            
+        if not from_part.startswith("[") or not from_part.endswith("]") or "@" not in from_part[1:-1]:
+            return None
+        
+        return f"{date_part} {time_part} {from_part}"
+
     def get_google_ia_models(self):
             try:
                 from google import genai
@@ -149,7 +182,7 @@ class EmlFile():
                     return self.remove_illegal_chars(response.text)
             except Exception as e:
                 self.error_message.append(f"AI Error: {str(e)}")
-
+                return self.get_mail_subject() # Fallback to non-AI subject if AI fails
 
                 
     def final_name(self):
@@ -170,32 +203,46 @@ class EmlFile():
         return s
 
     ##Method that detects if path has eml_rename format and returns a Boolean
-    def filename_format_detected(self):  
-        arr=self.path.split(" ")
-        if len(arr)<3:
-            return False
-        
-        if len(arr[0])!=8: #date
-            return False
-        
-        if len(arr[1])!=4: #hour
-            return False
-            
-        try:
-            datetime.strptime( arr[0]+" "+arr[1], "%Y%m%d %H%M" )
-        except:
-            return False
-            
-        if not arr[2].startswith("[") or not arr[2].endswith("]") or not "@" in arr[2][1:-1]: #mail in brackets
-            return False
-        
-        return True
+    def filename_format_detected(self):
+        """
+        Checks if the current file's name matches the 'YYYYMMDD HHMM [From]' pattern.
+        """
+        return self._get_prefix_from_filename(self.path) is not None
         
     def will_be_renamed(self, force):
+        """
+        Determines if the file should be renamed based on force flag, errors,
+        and whether the current filename matches the target format.
+        """
         if len(self.error_message)>0:
             return False
-        if force is False and self.filename_format_detected() is True:
+        
+        # If force is True, always rename (unless errors)
+        if force:
+            return True
+
+        # If the current filename is EXACTLY the same as the final name, no rename needed.
+        if Path(self.path).name == self.final_name():
             return False
+        
+        # If force is False and the current filename is NOT the final name,
+        # we need to decide if it should be renamed.
+        # It should NOT be renamed if:
+        # 1. The current filename matches the expected prefix format (YYYYMMDD HHMM [From])
+        # 2. AND the prefix of the current filename is IDENTICAL to the prefix of the generated final name.
+        # This protects manually edited subjects.
+        
+        current_prefix = self._get_prefix_from_filename(self.path)
+        generated_prefix = self._get_prefix_from_filename(self.final_name())
+
+        if current_prefix is not None and current_prefix == generated_prefix:
+            # The current file already has the expected date, time, and from format,
+            # and that prefix is the same as what we would generate.
+            # This means only the subject part is different, likely due to manual editing.
+            # So, we should not rename it.
+            return False
+            
+        # In all other cases, a rename is necessary.
         return True
 
     def report(self, force, save):

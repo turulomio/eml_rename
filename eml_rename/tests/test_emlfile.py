@@ -9,7 +9,7 @@ from os import path
 
 def test_emlfile(test_fs):
 
-    eml=EmlFile(test_fs["mail1.eml"], 140, False)
+    eml=EmlFile(test_fs["mail1.eml"], 140, ia=False, force=False, ia_delay=2) # Updated constructor call
     assert eml.system_timezone=="UTC"
     assert eml.file_encoding=="ascii"
     assert eml.dt== datetime(2023, 9, 15, 7, 45, tzinfo=ZoneInfo(key='UTC')) 

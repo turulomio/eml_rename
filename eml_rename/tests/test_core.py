@@ -80,7 +80,7 @@ def test_emlrename(test_fs):
     assert path.exists("20240522 1200 [info@conciencia-global.org] La urgente realidad del cambio climatico.eml")
     assert path.exists("20240522 1330 [skeptic@example.com] Re La urgente realidad del cambio climatico.eml")
 
-def test_main_with_help_args(monkeypatch):
+def test_main_with_help_args(monkeypatch, test_fs): # Added test_fs to ensure fixture is loaded
     """Test that main exits when no arguments are provided."""
     # Prevent sys.argv from being used by argparse
     monkeypatch.setattr('sys.argv', ['eml_rename', "--help"])
