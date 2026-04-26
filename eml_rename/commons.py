@@ -1,18 +1,11 @@
 from configparser import ConfigParser
-from chardet import detect
-from colorama import Fore, Style
 from datetime import datetime
-from email.parser import HeaderParser
-from email.utils import parsedate_to_datetime, parseaddr
-from email.header import decode_header
 from gettext import translation
 from importlib.resources import files
-from os import rename, environ
+from os import environ
 from pathlib import Path
-from pydicts import colors, casts
-
 from sys import exit
-from zoneinfo import ZoneInfo
+from time import tzset, tzname
 
 __version__ = '1.0.1'
 __versiondatetime__ = datetime(2026, 1, 11, 21, 57)
@@ -48,8 +41,9 @@ def get_google_api_key():
         return config.get("auth", "GOOGLE_API_KEY", fallback=None)
     return None
 
-def get_system_localzone_name():
-    tz= datetime.now().astimezone().tzname()
-    if tz in ["CEST", "CET"]: #Cest wasn't recognized by ZoneInfo
-        return "UTC"
-    return tz
+def get_system_timezone_name():
+    """
+        Obtiene el nombre del timezone del systema
+    """
+    tzset()
+    return tzname[0]

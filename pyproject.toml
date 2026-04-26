@@ -7,11 +7,10 @@ license = {text = "GPL-3.0 license"}
 readme = "README.md"
 requires-python = ">=3.10,<4.0"
 dependencies = [
-    "colorama>=0.4.6",
-    "chardet>=5.2.0",
+    "chardet>=7.4.3",
     "tqdm>=4.67.1",
-    "pydicts >=1.1.0",
-    "google-genai>=0.6.0",
+    "pydicts >=1.2.0",
+    "google-genai>=1.73.1",
 ]
 
 
@@ -19,9 +18,9 @@ dependencies = [
 eml_rename = "eml_rename.core:main"
 
 [tool.poetry.group.dev.dependencies]
-poethepoet = ">=0.32.1"
-pytest = "^9.0.2"
-coverage = "^7.13.1"
+poethepoet = ">=0.44.0"
+pytest = ">=9.0.3"
+coverage = ">=7.13.5"
 
 [build-system]
 requires = ["poetry-core"]
