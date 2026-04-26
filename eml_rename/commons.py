@@ -1,18 +1,11 @@
 from configparser import ConfigParser
-from chardet import detect
-from colorama import Fore, Style
 from datetime import datetime
-from email.parser import HeaderParser
-from email.utils import parsedate_to_datetime, parseaddr
-from email.header import decode_header
 from gettext import translation
 from importlib.resources import files
-from os import rename, environ
+from os import environ
 from pathlib import Path
-from pydicts import colors, casts
 
 from sys import exit
-from zoneinfo import ZoneInfo
 
 __version__ = '1.0.1'
 __versiondatetime__ = datetime(2026, 1, 11, 21, 57)

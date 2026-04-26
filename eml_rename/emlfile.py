@@ -1,13 +1,10 @@
-from configparser import ConfigParser
 from chardet import detect
-from colorama import Fore, Style
 from datetime import datetime
 from email import message_from_string
 from email.parser import HeaderParser
 from email.utils import parsedate_to_datetime, parseaddr
 from email.header import decode_header
-from time import sleep # Added for AI delay
-from os import rename, environ
+from os import rename
 from pathlib import Path
 from pydicts import colors, casts
 from zoneinfo import ZoneInfo
