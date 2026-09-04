@@ -1,3 +1,4 @@
+import codecs
 from chardet import detect
 from datetime import datetime
 from email import message_from_string
@@ -8,18 +9,19 @@ from os import rename
 from pathlib import Path
 from pydicts import colors, casts
 from zoneinfo import ZoneInfo
-from .commons import get_google_api_key, get_system_timezone_name, _
+from .commons import get_google_api_key, get_system_timezone_name, get_ai_model, get_available_ai_models, _
 
 
 ## Class to work with eml file
 class EmlFile():
-    def __init__(self, path, length, ia=False, force=False, ia_delay=2):
+    def __init__(self, path, length, ia=False, force=False, ia_delay=2, ai_model=None):
         self.path=path
         self.ia_requested=ia # Store if AI was requested
         self.length=length
         self.error_message=[]
         self.force = force # Store the force parameter
         self.ia_delay = ia_delay # Store AI delay
+        self.ai_model = ai_model or get_ai_model()
 
         self.google_api_key=get_google_api_key()
         self.system_timezone=get_system_timezone_name()
@@ -36,35 +38,45 @@ class EmlFile():
             self.subject=self.get_mail_subject()
                 
     def get_file_encoding(self):        #Guessing file chart
-        with open(self.path, "rb") as f:
-            detected=detect(f.read(10000)) 
-            return detected["encoding"]
+        try:
+            with open(self.path, "rb") as f:
+                detected=detect(f.read(10000)) 
+                encoding = detected.get("encoding")
+                if not encoding or encoding.lower().replace("-", "") == "utf7":
+                    return "utf-8"
+                codecs.lookup(encoding)
+                return encoding
+        except LookupError:
+            return "utf-8"
+        except Exception as e:
+            self.error_message.append(str(e))
+            return "utf-8"
 
     def get_mail_from(self):
         #Parse file and load used metadata            
-        with open(self.path, "r", encoding=self.file_encoding) as f:
-            try:
+        try:
+            with open(self.path, "r", encoding=self.file_encoding, errors="replace") as f:
                 metadata=HeaderParser().parse(f)
                 from_=parseaddr(metadata["From"])[1]
                 return from_
-            except Exception as e:
-                self.error_message.append(str(e))
+        except Exception as e:
+            self.error_message.append(str(e))
 
     def get_mail_datetime(self):       
-        with open(self.path, "r", encoding=self.file_encoding) as f:
-            try:
+        try:
+            with open(self.path, "r", encoding=self.file_encoding, errors="replace") as f:
                 metadata=HeaderParser().parse(f)
                 dt_mail=parsedate_to_datetime(metadata["Date"])
                 dt=casts.dtaware_changes_tz(dt_mail, self.system_timezone)
                 return dt
-            except Exception as e:
-                self.error_message.append(str(e))
+        except Exception as e:
+            self.error_message.append(str(e))
 
 
     def get_mail_body(self):
         #Parse file and load used metadata            
-        with open(self.path, "r", encoding=self.file_encoding) as f:
-            try:
+        try:
+            with open(self.path, "r", encoding=self.file_encoding, errors="replace") as f:
                 body = ""
                 f.seek(0)
                 msg = message_from_string(f.read())
@@ -80,15 +92,15 @@ class EmlFile():
                     if payload:
                         body = payload.decode(self.file_encoding, errors='ignore')
                 return body
-            except Exception as e:
-                self.error_message.append(str(e))
+        except Exception as e:
+            self.error_message.append(str(e))
 
 
 
     def get_mail_subject(self):      
         empty_answer= _("(Without subject)")     
-        with open(self.path, "r", encoding=self.file_encoding) as f:
-            try:
+        try:
+            with open(self.path, "r", encoding=self.file_encoding, errors="replace") as f:
                 metadata=HeaderParser().parse(f)
                 if metadata["Subject"] is None:
                     return empty_answer
@@ -97,16 +109,19 @@ class EmlFile():
                 for stream, codification in arr:
                     codification="utf-8" if codification is None else codification
                     if isinstance(stream, bytes):
-                        r=r+stream.decode(codification)
+                        try:
+                            r=r+stream.decode(codification, errors="replace")
+                        except LookupError:
+                            r=r+stream.decode("utf-8", errors="replace")
                     elif isinstance(stream,  str):
                         r=r+stream
                         
                 if r.strip()=="":
                     r= empty_answer
                 return self.remove_illegal_chars(r)
-            except:
-                self.error_message=_("Error parsing subject") + str(arr)
-                return empty_answer
+        except Exception as e:
+            self.error_message.append(f"{_('Error parsing subject')}: {str(e)}")
+            return empty_answer
 
     def _get_prefix_from_filename(self, filename):
         """
@@ -136,24 +151,17 @@ class EmlFile():
         return f"{date_part} {time_part} {from_part}"
 
     def get_google_ia_models(self):
-            try:
-                from google import genai
-            except ImportError:
-                raise Exception(_("The 'google-genai' package is not installed. Please run 'pip install google-genai' or 'poetry install'."))
-
-            if not self.google_api_key:
-                raise Exception(_("GOOGLE_API_KEY not found. Set it in environment or in ~/.config/eml-rename/config.ini"))
-            client = genai.Client(api_key=self.google_api_key)
-            
-            # List all available models to console
-            for m in client.models.list():
-                print(f"Found model: {m.name}")
+        models = get_available_ai_models()
+        for m in models:
+            print(f"Found model: {m}")
+        return models
 
     def get_mail_subject_with_ia(self):
             if casts.is_noe(self.body):
                 return self.get_mail_subject()
             try:
                 from google import genai
+                from google.genai import types
             except ImportError:
                 raise Exception(_("The 'google-genai' package is not installed. Please run 'pip install google-genai' or 'poetry install'."))
 
@@ -161,20 +169,37 @@ class EmlFile():
                 if not self.google_api_key:
                     raise Exception(_("GOOGLE_API_KEY not found. Set it in environment or in ~/.config/eml-rename/config.ini"))
                 client = genai.Client(api_key=self.google_api_key)
-                prompt = f"""Summarize the following email content in a single sentence, maximum 100 characters, to be used as a file name subject. The sentence must be in spanish. 
 
-                Trata de quitar articulos y letras innecesaria. Debe dar un esquema de contenido. No detalles
+                # Limita la entrada a los primeros 3.000 caracteres para reducir el consumo de tokens
+                # en correos con hilos extensos, firmas largas o volcados de texto.
+                body_sample = self.body[:3000] if len(self.body) > 3000 else self.body
 
-                Quiero la idea fuerza de forma esquemática
-                
-                No pongas un punto al final.
-                
-                Asegúrate de que la respuesta esté codificada en UTF-8.
+                config = types.GenerateContentConfig(
+                    # max_output_tokens: Limita la respuesta a un máximo de 50 tokens (~150-200 caracteres),
+                    # evitando explicaciones sobrantes o texto redundante.
+                    max_output_tokens=50,
+                    # temperature: Valor bajo (0.1) para priorizar respuestas deterministas, concisas y directas.
+                    temperature=0.1,
+                    # thinking_budget=0: Desactiva los tokens de razonamiento interno de Gemini 2.5 Flash,
+                    # ahorrando cientos de tokens de 'thinking' innecesarios para un resumen simple.
+                    thinking_config=types.ThinkingConfig(thinking_budget=0),
+                    # disable=True: Desactiva el Automatic Function Calling (AFC) para eliminar la sobrecarga
+                    # del SDK y suprimir avisos de consola al no utilizar herramientas/funciones.
+                    automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
+                    # system_instruction: Define el rol del modelo y las reglas de formato esperadas
+                    # para que la respuesta sea directamente utilizable como nombre de archivo.
+                    system_instruction=(
+                        "Resume el correo en una sola frase breve (máximo 80 caracteres) "
+                        "en español para usar como asunto de archivo. "
+                        "Esquemático, conciso, sin artículos innecesarios, sin punto final ni formato markdown."
+                    ),
+                )
 
-                Content: '{self.body}'
-                """
-
-                response = client.models.generate_content(model='gemma-3n-e4b-it', contents=prompt)
+                response = client.models.generate_content(
+                    model=self.ai_model,
+                    contents=f"Correo:\n{body_sample}",
+                    config=config,
+                )
                 if response and response.text:
                     return self.remove_illegal_chars(response.text)
             except Exception as e:
@@ -192,7 +217,7 @@ class EmlFile():
     def remove_illegal_chars(self, s):
         illegal_chars = '<>:"/\\|?*\n\t-_()[]{}¿'
         s = s.strip()
-        s = s[:-1] if s[len(s)-1]=="." else s
+        s = s[:-1] if s.endswith(".") else s
         s = s.translate(str.maketrans('', '', illegal_chars))
         for i in range(5):
             s = s.replace("..", ".")
