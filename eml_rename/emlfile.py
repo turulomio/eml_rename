@@ -1,3 +1,4 @@
+import codecs
 from chardet import detect
 from datetime import datetime
 from email import message_from_string
@@ -36,35 +37,45 @@ class EmlFile():
             self.subject=self.get_mail_subject()
                 
     def get_file_encoding(self):        #Guessing file chart
-        with open(self.path, "rb") as f:
-            detected=detect(f.read(10000)) 
-            return detected["encoding"]
+        try:
+            with open(self.path, "rb") as f:
+                detected=detect(f.read(10000)) 
+                encoding = detected.get("encoding")
+                if not encoding or encoding.lower().replace("-", "") == "utf7":
+                    return "utf-8"
+                codecs.lookup(encoding)
+                return encoding
+        except LookupError:
+            return "utf-8"
+        except Exception as e:
+            self.error_message.append(str(e))
+            return "utf-8"
 
     def get_mail_from(self):
         #Parse file and load used metadata            
-        with open(self.path, "r", encoding=self.file_encoding) as f:
-            try:
+        try:
+            with open(self.path, "r", encoding=self.file_encoding, errors="replace") as f:
                 metadata=HeaderParser().parse(f)
                 from_=parseaddr(metadata["From"])[1]
                 return from_
-            except Exception as e:
-                self.error_message.append(str(e))
+        except Exception as e:
+            self.error_message.append(str(e))
 
     def get_mail_datetime(self):       
-        with open(self.path, "r", encoding=self.file_encoding) as f:
-            try:
+        try:
+            with open(self.path, "r", encoding=self.file_encoding, errors="replace") as f:
                 metadata=HeaderParser().parse(f)
                 dt_mail=parsedate_to_datetime(metadata["Date"])
                 dt=casts.dtaware_changes_tz(dt_mail, self.system_timezone)
                 return dt
-            except Exception as e:
-                self.error_message.append(str(e))
+        except Exception as e:
+            self.error_message.append(str(e))
 
 
     def get_mail_body(self):
         #Parse file and load used metadata            
-        with open(self.path, "r", encoding=self.file_encoding) as f:
-            try:
+        try:
+            with open(self.path, "r", encoding=self.file_encoding, errors="replace") as f:
                 body = ""
                 f.seek(0)
                 msg = message_from_string(f.read())
@@ -80,15 +91,15 @@ class EmlFile():
                     if payload:
                         body = payload.decode(self.file_encoding, errors='ignore')
                 return body
-            except Exception as e:
-                self.error_message.append(str(e))
+        except Exception as e:
+            self.error_message.append(str(e))
 
 
 
     def get_mail_subject(self):      
         empty_answer= _("(Without subject)")     
-        with open(self.path, "r", encoding=self.file_encoding) as f:
-            try:
+        try:
+            with open(self.path, "r", encoding=self.file_encoding, errors="replace") as f:
                 metadata=HeaderParser().parse(f)
                 if metadata["Subject"] is None:
                     return empty_answer
@@ -97,16 +108,19 @@ class EmlFile():
                 for stream, codification in arr:
                     codification="utf-8" if codification is None else codification
                     if isinstance(stream, bytes):
-                        r=r+stream.decode(codification)
+                        try:
+                            r=r+stream.decode(codification, errors="replace")
+                        except LookupError:
+                            r=r+stream.decode("utf-8", errors="replace")
                     elif isinstance(stream,  str):
                         r=r+stream
                         
                 if r.strip()=="":
                     r= empty_answer
                 return self.remove_illegal_chars(r)
-            except:
-                self.error_message=_("Error parsing subject") + str(arr)
-                return empty_answer
+        except Exception as e:
+            self.error_message.append(f"{_('Error parsing subject')}: {str(e)}")
+            return empty_answer
 
     def _get_prefix_from_filename(self, filename):
         """
@@ -192,7 +206,7 @@ class EmlFile():
     def remove_illegal_chars(self, s):
         illegal_chars = '<>:"/\\|?*\n\t-_()[]{}¿'
         s = s.strip()
-        s = s[:-1] if s[len(s)-1]=="." else s
+        s = s[:-1] if s.endswith(".") else s
         s = s.translate(str.maketrans('', '', illegal_chars))
         for i in range(5):
             s = s.replace("..", ".")
