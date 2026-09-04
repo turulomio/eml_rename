@@ -15,7 +15,7 @@ I took this idea from an article by Armand Niculescu (August 20, 2014) at https:
 ## Installation
 
 ```bash
-pip install eml_rename
+pip install eml_rename 
 ```
 
 ## Features
