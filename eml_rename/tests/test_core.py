@@ -105,3 +105,47 @@ def test_main_with_no_args(monkeypatch, test_fs):
     assert path.exists("20230915 0945 [jane.smith@example.org] Project Update EML Rename.eml")
     assert path.exists("20240522 1400 [info@conciencia-global.org] La urgente realidad del cambio climatico.eml")
     assert path.exists("20240522 1530 [skeptic@example.com] Re La urgente realidad del cambio climatico.eml")
+
+
+def test_commons_ai_model_config(tmp_path, monkeypatch):
+    from eml_rename.commons import get_ai_model, save_ai_model, DEFAULT_AI_MODEL
+    mock_config = tmp_path / "config.ini"
+    monkeypatch.setattr("eml_rename.commons.get_config_path", lambda: mock_config)
+
+    # Defaults to DEFAULT_AI_MODEL when no config exists
+    assert get_ai_model() == DEFAULT_AI_MODEL
+
+    # Save model and verify it persists
+    save_ai_model("custom-model-1")
+    assert get_ai_model() == "custom-model-1"
+    assert mock_config.exists()
+
+
+def test_main_ai_models(monkeypatch, test_fs, capsys):
+    monkeypatch.setattr("eml_rename.core.get_available_ai_models", lambda: ["model-a", "model-b"])
+    monkeypatch.setattr("eml_rename.core.get_ai_model", lambda: "model-a")
+    monkeypatch.setattr('sys.argv', ['eml_rename', '--ai_models'])
+    main()
+    captured = capsys.readouterr()
+    assert "model-a" in captured.out
+    assert "model-b" in captured.out
+
+
+def test_main_ai_model_save_and_warning(tmp_path, monkeypatch, test_fs, capsys):
+    mock_config = tmp_path / "config.ini"
+    monkeypatch.setattr("eml_rename.commons.get_config_path", lambda: mock_config)
+    monkeypatch.setattr("eml_rename.core.get_available_ai_models", lambda: ["gemini-2.5-flash"])
+
+    # Test setting model via CLI saves to config
+    monkeypatch.setattr('sys.argv', ['eml_rename', '--ai_model', 'new-model'])
+    main()
+    captured = capsys.readouterr()
+    assert "new-model" in captured.out
+
+    # Test warning when unavailable model is used with --ai
+    monkeypatch.setattr('sys.argv', ['eml_rename', '--ai'])
+    main()
+    captured2 = capsys.readouterr()
+    assert "new-model" in captured2.out
+    assert "gemini-2.5-flash" in captured2.out
+

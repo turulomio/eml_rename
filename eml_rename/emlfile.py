@@ -9,18 +9,19 @@ from os import rename
 from pathlib import Path
 from pydicts import colors, casts
 from zoneinfo import ZoneInfo
-from .commons import get_google_api_key, get_system_timezone_name, _
+from .commons import get_google_api_key, get_system_timezone_name, get_ai_model, get_available_ai_models, _
 
 
 ## Class to work with eml file
 class EmlFile():
-    def __init__(self, path, length, ia=False, force=False, ia_delay=2):
+    def __init__(self, path, length, ia=False, force=False, ia_delay=2, ai_model=None):
         self.path=path
         self.ia_requested=ia # Store if AI was requested
         self.length=length
         self.error_message=[]
         self.force = force # Store the force parameter
         self.ia_delay = ia_delay # Store AI delay
+        self.ai_model = ai_model or get_ai_model()
 
         self.google_api_key=get_google_api_key()
         self.system_timezone=get_system_timezone_name()
@@ -150,18 +151,10 @@ class EmlFile():
         return f"{date_part} {time_part} {from_part}"
 
     def get_google_ia_models(self):
-            try:
-                from google import genai
-            except ImportError:
-                raise Exception(_("The 'google-genai' package is not installed. Please run 'pip install google-genai' or 'poetry install'."))
-
-            if not self.google_api_key:
-                raise Exception(_("GOOGLE_API_KEY not found. Set it in environment or in ~/.config/eml-rename/config.ini"))
-            client = genai.Client(api_key=self.google_api_key)
-            
-            # List all available models to console
-            for m in client.models.list():
-                print(f"Found model: {m.name}")
+        models = get_available_ai_models()
+        for m in models:
+            print(f"Found model: {m}")
+        return models
 
     def get_mail_subject_with_ia(self):
             if casts.is_noe(self.body):
@@ -203,8 +196,7 @@ class EmlFile():
                 )
 
                 response = client.models.generate_content(
-                    # Modelo estándar recomendado por Google para tareas rápidas y de bajo coste con soporte multimodal/texto.
-                    model='gemini-2.5-flash',
+                    model=self.ai_model,
                     contents=f"Correo:\n{body_sample}",
                     config=config,
                 )

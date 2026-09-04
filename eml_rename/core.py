@@ -1,6 +1,9 @@
 from argparse import ArgumentParser, RawTextHelpFormatter
 
-from eml_rename.commons import signal_handler,__version__, __versiondate__, __versiondatetime__, _, argparse_epilog
+from eml_rename.commons import (
+    signal_handler, __version__, __versiondate__, __versiondatetime__, _, argparse_epilog,
+    get_ai_model, save_ai_model, get_available_ai_models, DEFAULT_AI_MODEL
+)
 from eml_rename.emlfile import EmlFile
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
@@ -23,12 +26,45 @@ def main():
     parser.add_argument('--save', help=_("Without this parameter files won't be renamed. Script only pretend the result"), action="store_true", default=False)
     parser.add_argument('--ai', help=_("Use Gemini AI to summarize email content as subject"), action="store_true", default=False)
     parser.add_argument('--ai_delay', help=_("Delay between AI requests"), action="store", type=int, default=2)
+    parser.add_argument('--ai_models', '--ai-models', help=_("List available Gemini AI models for content generation and exit"), action="store_true", default=False)
+    parser.add_argument('--ai_model', '--ai-model', help=_("Specify Gemini AI model to use and save it to configfile"), action="store", default=None, type=str)
     args=parser.parse_args()
-    
-    eml_rename(args.force, args.length, args.save, args.ai, args.ai_delay)
 
-def eml_rename(force=False, length=140, save=False, ia=False, ia_delay=2):        
+    if args.ai_models:
+        try:
+            models = get_available_ai_models()
+            current_model = get_ai_model()
+            print(colors.blue(_("Available Gemini AI models:")))
+            for m in models:
+                current_indicator = f" {colors.green(_('(configured)'))}" if m == current_model else ""
+                print(f"  - {m}{current_indicator}")
+            return
+        except Exception as e:
+            print(colors.red(f"{_('Error retrieving models')}: {str(e)}"))
+            return
+
+    if args.ai_model:
+        save_ai_model(args.ai_model)
+        print(colors.green(_("AI model set to '{0}' and saved to configuration.").format(args.ai_model)))
+
+    ai_model = args.ai_model or get_ai_model()
+    if args.ai:
+        try:
+            available_models = get_available_ai_models()
+            if ai_model not in available_models and f"models/{ai_model}" not in available_models:
+                print(colors.yellow(
+                    _("Warning: Configured model '{0}' is not available in the API. Defaulting to '{1}'.").format(ai_model, DEFAULT_AI_MODEL)
+                ))
+                ai_model = DEFAULT_AI_MODEL
+        except Exception:
+            pass
+
+    eml_rename(args.force, args.length, args.save, args.ai, args.ai_delay, ai_model)
+
+def eml_rename(force=False, length=140, save=False, ia=False, ia_delay=2, ai_model=None):        
     start=datetime.now()
+    if ai_model is None:
+        ai_model = get_ai_model()
     
     filenames=[]
     for filename in glob( "*.eml", recursive=False):
@@ -39,8 +75,8 @@ def eml_rename(force=False, length=140, save=False, ia=False, ia_delay=2):
     with ThreadPoolExecutor(max_workers=1 if ia else cpu_count()+1) as executor:
             with tqdm(total=len(filenames), desc=_("Processing eml files")) as progress:
                 for filename in filenames:
-                        # Pass 'force' and 'ia_delay' to EmlFile constructor
-                        future=executor.submit(EmlFile, filename, length, ia, force, ia_delay)
+                        # Pass 'force', 'ia_delay', and 'ai_model' to EmlFile constructor
+                        future=executor.submit(EmlFile, filename, length, ia, force, ia_delay, ai_model)
                         future.add_done_callback(lambda p: progress.update())
                         futures.append(future)
 

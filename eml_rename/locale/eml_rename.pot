@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-26 20:42+0200\n"
+"POT-Creation-Date: 2026-09-04 09:38+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,6 +21,12 @@ msgid "You pressed 'Ctrl+C', exiting..."
 msgstr ""
 
 msgid "Developed by Mariano Muñoz 2022-{}"
+msgstr ""
+
+msgid "GOOGLE_API_KEY not found. Set it in environment or in ~/.config/eml-rename/config.ini"
+msgstr ""
+
+msgid "The 'google-genai' package is not installed. Please run 'pip install google-genai' or 'poetry install'."
 msgstr ""
 
 msgid "Script renames all eml files in a directory using mail metadata "
@@ -42,6 +48,29 @@ msgstr ""
 msgid "Delay between AI requests"
 msgstr ""
 
+msgid "List available Gemini AI models for content generation and exit"
+msgstr ""
+
+msgid "Specify Gemini AI model to use and save it to configfile"
+msgstr ""
+
+msgid "Available Gemini AI models:"
+msgstr ""
+
+msgid "(configured)"
+msgstr ""
+
+msgid "Error retrieving models"
+msgstr ""
+
+#, python-brace-format
+msgid "AI model set to '{0}' and saved to configuration."
+msgstr ""
+
+#, python-brace-format
+msgid "Warning: Configured model '{0}' is not available in the API. Defaulting to '{1}'."
+msgstr ""
+
 msgid "Processing eml files"
 msgstr ""
 
@@ -60,12 +89,6 @@ msgid "(Without subject)"
 msgstr ""
 
 msgid "Error parsing subject"
-msgstr ""
-
-msgid "The 'google-genai' package is not installed. Please run 'pip install google-genai' or 'poetry install'."
-msgstr ""
-
-msgid "GOOGLE_API_KEY not found. Set it in environment or in ~/.config/eml-rename/config.ini"
 msgstr ""
 
 msgid "[Error detected. Won't be renamed]"
