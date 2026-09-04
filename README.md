@@ -3,6 +3,7 @@
 
 
 [![Tests](https://github.com/turulomio/eml_rename/actions/workflows/tests.yml/badge.svg)](https://github.com/turulomio/eml_rename/actions/workflows/tests.yml)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/eml_rename)](https://pypi.org/project/eml_rename/)
 
 
 Script renames all eml files in a directory using mail metadata
