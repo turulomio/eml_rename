@@ -1,0 +1,116 @@
+# Portuguese translations for eml_rename package.
+# Copyright (C) 2026 Mariano Muñoz
+# This file is distributed under the same license as the eml_rename package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: eml_rename\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-04 11:27+0200\n"
+"PO-Revision-Date: 2026-09-04 11:30+0200\n"
+"Last-Translator: Antigravity\n"
+"Language-Team: Portuguese\n"
+"Language: pt\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "You pressed 'Ctrl+C', exiting..."
+msgstr "Pressionou 'Ctrl+C', a sair..."
+
+msgid "Developed by Mariano Muñoz 2022-{}"
+msgstr "Desenvolvido por Mariano Muñoz 2022-{}"
+
+msgid "GOOGLE_API_KEY not found. Set it in environment or in ~/.config/eml-rename/config.ini"
+msgstr "GOOGLE_API_KEY não encontrada. Defina-a no ambiente ou em ~/.config/eml-rename/config.ini"
+
+msgid "The 'google-genai' package is not installed. Please run 'pip install google-genai' or 'poetry install'."
+msgstr "O pacote 'google-genai' não está instalado. Execute 'pip install google-genai' ou 'poetry install'."
+
+msgid "Script renames all eml files in a directory using mail metadata "
+msgstr "O script renomeia todos os ficheiros eml num diretório usando os metadados do e-mail "
+
+msgid "Optional path(s) to .eml file(s) or directory. Defaults to current directory."
+msgstr "Caminho(s) opcional(ais) para ficheiro(s) .eml ou diretório. Predefinição: diretório atual."
+
+msgid "Forces subject update when 'YYYYMMDD HHMM [from]' format is detected"
+msgstr "Força a atualização do assunto quando o formato 'YYYYMMDD HHMM [de]' for detetado"
+
+#, python-brace-format
+msgid "Maximum length allowed to final name using 'YYYYMMDD HHMM [from]'. Default: {0}"
+msgstr "Comprimento máximo permitido para o nome final usando 'YYYYMMDD HHMM [de]'. Predefinição: {0}"
+
+msgid "Without this parameter files won't be renamed. Script only pretend the result"
+msgstr "Sem este parâmetro os ficheiros não serão renomeados. O script apenas simula o resultado"
+
+msgid "Use Gemini AI to summarize email content as subject"
+msgstr "Usar a IA Gemini para resumir o conteúdo do e-mail como assunto"
+
+msgid "Delay between AI requests"
+msgstr "Atraso entre pedidos de IA"
+
+msgid "List available Gemini AI models for content generation and exit"
+msgstr "Listar modelos de IA Gemini disponíveis para geração de conteúdo e sair"
+
+msgid "Specify Gemini AI model to use and save it to configfile"
+msgstr "Especificar o modelo de IA Gemini a usar e guardá-lo no ficheiro de configuração"
+
+msgid "Available Gemini AI models:"
+msgstr "Modelos de IA Gemini disponíveis:"
+
+msgid "(configured)"
+msgstr "(configurado)"
+
+msgid "Error retrieving models"
+msgstr "Erro ao obter modelos"
+
+#, python-brace-format
+msgid "AI model set to '{0}' and saved to configuration."
+msgstr "Modelo de IA definido para '{0}' e guardado na configuração."
+
+#, python-brace-format
+msgid "Warning: Configured model '{0}' is not available in the API. Defaulting to '{1}'."
+msgstr "Aviso: O modelo configurado '{0}' não está disponível na API. A usar o padrão '{1}'."
+
+#, python-brace-format
+msgid "File or path not found: {0}"
+msgstr "Ficheiro ou caminho não encontrado: {0}"
+
+msgid "Processing eml files"
+msgstr "A processar ficheiros eml"
+
+#, python-brace-format
+msgid "{0} files were renamed."
+msgstr "{0} ficheiros foram renomeados."
+
+#, python-brace-format
+msgid "Process was simulated, files weren't renamed. Use --save to rename {0} files."
+msgstr "O processo foi simulado, os ficheiros não foram renomeados. Use --save para renomear {0} ficheiros."
+
+msgid "It took {}"
+msgstr "Demorou {}"
+
+msgid "(Without subject)"
+msgstr "(Sem assunto)"
+
+msgid "Error parsing subject"
+msgstr "Erro ao analisar o assunto"
+
+msgid "[Error detected. Won't be renamed]"
+msgstr "[Erro detetado. Não será renomeado]"
+
+msgid "[Error detected. Not Renamed]"
+msgstr "[Erro detetado. Não renomeado]"
+
+msgid "[Will be renamed]"
+msgstr "[Será renomeado]"
+
+msgid "[Renamed]"
+msgstr "[Renomeado]"
+
+msgid "[Format detected. Won't de renamed]"
+msgstr "[Formato detetado. Não será renomeado]"
+
+msgid "[Format detected. Not renamed]"
+msgstr "[Formato detetado. Não renomeado]"

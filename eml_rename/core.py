@@ -1,7 +1,7 @@
-"""Módulo principal de ejecución y CLI para eml_rename.
+"""Main execution and CLI module for eml_rename.
 
-Gestiona el análisis de argumentos por línea de comandos, el procesamiento concurrente
-de correos electrónicos (.eml) y el renombrado seguro en disco o en modo simulación.
+Handles command-line argument parsing, concurrent processing of email (.eml) files,
+and safe file renaming either in simulation (dry-run) mode or saved to disk.
 """
 
 from argparse import ArgumentParser, RawTextHelpFormatter
@@ -24,11 +24,10 @@ from pydicts import colors
 
 
 def main():
-    """Punto de entrada para la ejecución desde la línea de comandos (CLI).
+    """Command-line interface (CLI) entry point.
 
-    Configura el manejador de interrupción (Ctrl+C), parsea los argumentos pasados
-    al script, gestiona la consulta y configuración de modelos de IA y delega la ejecución
-    en la función eml_rename.
+    Configures the SIGINT handler (Ctrl+C), parses command-line arguments,
+    manages AI model queries/selection, and delegates execution to eml_rename().
     """
     signal(SIGINT, signal_handler)
     default_length=140
@@ -76,20 +75,20 @@ def main():
     eml_rename(args.force, args.length, args.save, args.ai, args.ai_delay, ai_model, args.path)
 
 def eml_rename(force=False, length=140, save=False, ia=False, ia_delay=2, ai_model=None, path=None):
-    """Procesa y renombra archivos de correo (.eml) según sus metadatos o resumen IA.
+    """Process and rename email (.eml) files using metadata or AI summary.
 
-    Permite renombrar archivos individuales, listas de rutas o todos los archivos .eml
-    del directorio de trabajo o indicado. Puede ejecutarse en modo simulación (save=False)
-    o aplicando los cambios en disco (save=True).
+    Enables renaming of individual files, lists of file paths, or all .eml files
+    in the specified or current directory. Can run in preview/dry-run mode (save=False)
+    or commit renames to disk (save=True).
 
     Args:
-        force (bool): Si es True, sobrescribe el nombre incluso si ya sigue el patrón de fecha y remitente.
-        length (int): Longitud máxima total del nombre de archivo resultante. Por defecto 140.
-        save (bool): Si es True, efectúa el renombrado físico en disco; si es False, sólo simula.
-        ia (bool): Si es True, utiliza Google Gemini para resumir el contenido del correo.
-        ia_delay (int): Pausa en segundos entre llamadas consecutivas a la API de IA.
-        ai_model (str | None): Nombre del modelo Gemini a utilizar. Si es None, usa el configurado.
-        path (str | Path | list[str | Path] | None): Ruta a archivo(s) o directorio. Si es None, usa el directorio actual.
+        force (bool): If True, forces renaming even if standard prefix format is detected.
+        length (int): Maximum total length of resulting filename. Defaults to 140.
+        save (bool): If True, renames files on disk; if False, simulates only.
+        ia (bool): If True, uses Google Gemini to summarize email content as subject.
+        ia_delay (int): Delay in seconds between consecutive AI API calls.
+        ai_model (str | None): Gemini model name to use. If None, reads from configuration.
+        path (str | Path | list[str | Path] | None): Path to file(s) or directory. If None, uses current working directory.
     """        
     start=datetime.now()
     if ai_model is None:

@@ -1,0 +1,116 @@
+# Romanian translations for eml_rename package.
+# Copyright (C) 2026 Mariano Muñoz
+# This file is distributed under the same license as the eml_rename package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: eml_rename\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-04 11:27+0200\n"
+"PO-Revision-Date: 2026-09-04 11:30+0200\n"
+"Last-Translator: Antigravity\n"
+"Language-Team: Romanian\n"
+"Language: ro\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < 20)) ? 1 : 2);\n"
+
+msgid "You pressed 'Ctrl+C', exiting..."
+msgstr "Ați apăsat 'Ctrl+C', se iese..."
+
+msgid "Developed by Mariano Muñoz 2022-{}"
+msgstr "Dezvoltat de Mariano Muñoz 2022-{}"
+
+msgid "GOOGLE_API_KEY not found. Set it in environment or in ~/.config/eml-rename/config.ini"
+msgstr "GOOGLE_API_KEY nu a fost găsită. Setați-o în mediu sau în ~/.config/eml-rename/config.ini"
+
+msgid "The 'google-genai' package is not installed. Please run 'pip install google-genai' or 'poetry install'."
+msgstr "Pachetul 'google-genai' nu este instalat. Rulați 'pip install google-genai' sau 'poetry install'."
+
+msgid "Script renames all eml files in a directory using mail metadata "
+msgstr "Scriptul redenumește toate fișierele eml dintr-un director folosind metadatele e-mailului "
+
+msgid "Optional path(s) to .eml file(s) or directory. Defaults to current directory."
+msgstr "Cale/căi opționale către fișier(e) .eml sau director. Implicit este directorul curent."
+
+msgid "Forces subject update when 'YYYYMMDD HHMM [from]' format is detected"
+msgstr "Forțează actualizarea subiectului când este detectat formatul 'YYYYMMDD HHMM [de_la]'"
+
+#, python-brace-format
+msgid "Maximum length allowed to final name using 'YYYYMMDD HHMM [from]'. Default: {0}"
+msgstr "Lungimea maximă permisă pentru numele final folosind 'YYYYMMDD HHMM [de_la]'. Implicit: {0}"
+
+msgid "Without this parameter files won't be renamed. Script only pretend the result"
+msgstr "Fără acest parametru fișierele nu vor fi redenumite. Scriptul doar simulează rezultatul"
+
+msgid "Use Gemini AI to summarize email content as subject"
+msgstr "Utilizează IA Gemini pentru a rezuma conținutul e-mailului ca subiect"
+
+msgid "Delay between AI requests"
+msgstr "Întârziere între cererile IA"
+
+msgid "List available Gemini AI models for content generation and exit"
+msgstr "Listează modelele de IA Gemini disponibile pentru generare de conținut și ieși"
+
+msgid "Specify Gemini AI model to use and save it to configfile"
+msgstr "Specifică modelul de IA Gemini de utilizat și salvează-l în fișierul de configurare"
+
+msgid "Available Gemini AI models:"
+msgstr "Modele de IA Gemini disponibile:"
+
+msgid "(configured)"
+msgstr "(configurat)"
+
+msgid "Error retrieving models"
+msgstr "Eroare la preluarea modelelor"
+
+#, python-brace-format
+msgid "AI model set to '{0}' and saved to configuration."
+msgstr "Modelul IA a fost setat la '{0}' și salvat în configurație."
+
+#, python-brace-format
+msgid "Warning: Configured model '{0}' is not available in the API. Defaulting to '{1}'."
+msgstr "Avertisment: Modelul configurat '{0}' nu este disponibil în API. Se utilizează implicit '{1}'."
+
+#, python-brace-format
+msgid "File or path not found: {0}"
+msgstr "Fișierul sau calea nu a fost găsită: {0}"
+
+msgid "Processing eml files"
+msgstr "Se procesează fișierele eml"
+
+#, python-brace-format
+msgid "{0} files were renamed."
+msgstr "{0} fișiere au fost redenumite."
+
+#, python-brace-format
+msgid "Process was simulated, files weren't renamed. Use --save to rename {0} files."
+msgstr "Procesul a fost simulat, fișierele nu au fost redenumite. Utilizați --save pentru a redenumi {0} fișiere."
+
+msgid "It took {}"
+msgstr "A durat {}"
+
+msgid "(Without subject)"
+msgstr "(Fără subiect)"
+
+msgid "Error parsing subject"
+msgstr "Eroare la parsarea subiectului"
+
+msgid "[Error detected. Won't be renamed]"
+msgstr "[Eroare detectată. Nu va fi redenumit]"
+
+msgid "[Error detected. Not Renamed]"
+msgstr "[Eroare detectată. Neredenumit]"
+
+msgid "[Will be renamed]"
+msgstr "[Va fi redenumit]"
+
+msgid "[Renamed]"
+msgstr "[Redenumit]"
+
+msgid "[Format detected. Won't de renamed]"
+msgstr "[Format detectat. Nu va fi redenumit]"
+
+msgid "[Format detected. Not renamed]"
+msgstr "[Format detectat. Neredenumit]"

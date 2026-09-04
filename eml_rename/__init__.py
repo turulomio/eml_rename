@@ -1,8 +1,7 @@
-"""Paquete principal de eml_rename.
+"""Main package for eml_rename.
 
-Herramienta de línea de comandos y biblioteca Python para el renombrado automático
-y estructurado de archivos de correo electrónico (.eml) a partir de sus metadatos
-(fecha, remitente, asunto) o resúmenes generados mediante IA (Google Gemini).
+Command-line tool and Python library to automatically rename .eml email files
+using email metadata (date, sender, subject) or AI-generated summaries (Google Gemini).
 """
 
 from .core import __version__, __versiondate__, __versiondatetime__, eml_rename

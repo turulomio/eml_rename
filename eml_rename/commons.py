@@ -1,7 +1,7 @@
-"""Módulo de utilidades comunes y configuración para eml_rename.
+"""Common utilities and configuration module for eml_rename.
 
-Proporciona funciones para la gestión de configuración, acceso a claves de API,
-consulta de modelos de IA de Google Gemini, manejo de señales del sistema y utilidades de zona horaria.
+Provides helper functions for configuration management, API key retrieval,
+Google Gemini AI models discovery, system signal handling, and timezone detection.
 """
 
 from configparser import ConfigParser
@@ -13,8 +13,8 @@ from pathlib import Path
 from sys import exit
 from time import tzset, tzname
 
-__version__ = '1.1.0'
-__versiondatetime__ = datetime(2026, 4, 26, 20, 41)
+__version__ = '1.2.0'
+__versiondatetime__ = datetime(2026, 9, 4, 11, 30)
 __versiondate__ = __versiondatetime__.date()
 
 try:
@@ -24,40 +24,40 @@ except:
     _ = str
     
 def signal_handler(signal, frame):
-    """Manejador de señal SIGINT (Ctrl+C).
+    """Signal handler for SIGINT (Ctrl+C).
 
-    Interrumpe la ejecución de forma limpia mostrando un mensaje informativo.
+    Interrupts execution cleanly and prints an informative message.
 
     Args:
-        signal: Número de la señal recibida.
-        frame: Objeto de marco de pila de ejecución actual.
+        signal: Signal number received.
+        frame: Current stack frame object.
     """
     print(_("You pressed 'Ctrl+C', exiting..."))
     exit(0)
 
 def argparse_epilog() -> str:
-    """Genera el texto de cierre (epilog) para el parser de argumentos de la CLI.
+    """Generate epilog text for the CLI argument parser.
 
     Returns:
-        str: Mensaje con los datos de autoría y el año actual de la versión.
+        str: Formatted authorship message with current version year.
     """
     return _("Developed by Mariano Muñoz 2022-{}").format(__versiondate__.year)
 
 DEFAULT_AI_MODEL = "gemini-2.5-flash"
 
 def get_config_path() -> Path:
-    """Devuelve la ruta al archivo de configuración de la aplicación.
+    """Get the path to the application's configuration file.
 
     Returns:
-        Path: Ruta a ~/.config/eml-rename/config.ini.
+        Path: Path to ~/.config/eml-rename/config.ini.
     """
     return Path.home() / ".config" / "eml-rename" / "config.ini"
 
 def get_config() -> ConfigParser:
-    """Carga y devuelve el objeto ConfigParser del archivo de configuración si existe.
+    """Load and return the ConfigParser instance from the config file if it exists.
 
     Returns:
-        ConfigParser: Instancia con la configuración leída o vacía si el archivo no existe.
+        ConfigParser: Parsed configuration object or empty instance if file does not exist.
     """
     config = ConfigParser()
     config_path = get_config_path()
@@ -66,31 +66,31 @@ def get_config() -> ConfigParser:
     return config
 
 def get_google_api_key() -> str | None:
-    """Busca y recupera la API Key de Google.
+    """Retrieve Google API Key with fallback precedence.
 
-    Tiene en cuenta el siguiente orden de prioridad:
-    1. Variable de entorno GOOGLE_API_KEY.
-    2. Sección [auth] en el archivo ~/.config/eml-rename/config.ini.
+    Priority order:
+    1. GOOGLE_API_KEY environment variable.
+    2. [auth] section in ~/.config/eml-rename/config.ini.
 
     Returns:
-        str | None: La clave de la API si fue encontrada, o None en caso contrario.
+        str | None: The API key if found, or None otherwise.
     """
-    # 1. Prioridad a la variable de entorno
+    # 1. Environment variable priority
     api_key = environ.get("GOOGLE_API_KEY")
     if api_key:
         return api_key
 
-    # 2. Buscar en ~/.config/eml-rename/config.ini
+    # 2. Look up ~/.config/eml-rename/config.ini
     config = get_config()
     if config.has_section("auth"):
         return config.get("auth", "GOOGLE_API_KEY", fallback=None)
     return None
 
 def get_ai_model() -> str:
-    """Obtiene el modelo de IA configurado en config.ini o el valor predeterminado.
+    """Get the configured AI model name from config.ini or return the default.
 
     Returns:
-        str: Nombre del modelo de IA a utilizar (por defecto DEFAULT_AI_MODEL).
+        str: Configured AI model name (defaults to DEFAULT_AI_MODEL).
     """
     config = get_config()
     if config.has_section("ai"):
@@ -100,12 +100,12 @@ def get_ai_model() -> str:
     return DEFAULT_AI_MODEL
 
 def save_ai_model(model_name: str) -> None:
-    """Guarda el modelo de IA seleccionado en el archivo de configuración config.ini.
+    """Persist selected AI model name into config.ini.
 
-    Crea los directorios necesarios y la sección [ai] si no existen previamente.
+    Creates required parent directories and the [ai] section if missing.
 
     Args:
-        model_name (str): Nombre del modelo que se desea persistir.
+        model_name (str): Model name to save.
     """
     config_path = get_config_path()
     config_path.parent.mkdir(parents=True, exist_ok=True)
@@ -117,16 +117,16 @@ def save_ai_model(model_name: str) -> None:
         config.write(f)
 
 def get_available_ai_models() -> list[str]:
-    """Obtiene la lista de modelos de Google Gemini disponibles para generación de contenido.
+    """Retrieve the list of Google Gemini models available for content generation.
 
-    Requiere que la API Key esté configurada y que el paquete google-genai esté instalado.
-    Filtra los modelos que admitan la acción 'generateContent'.
+    Requires a configured API key and the 'google-genai' package.
+    Filters models that support the 'generateContent' action.
 
     Returns:
-        list[str]: Lista con los nombres limpios de los modelos (sin prefijo 'models/').
+        list[str]: Clean model identifiers (without 'models/' prefix).
 
     Raises:
-        Exception: Si GOOGLE_API_KEY no está definida o si google-genai no está instalado.
+        Exception: If GOOGLE_API_KEY is not defined or google-genai is not installed.
     """
     api_key = get_google_api_key()
     if not api_key:
@@ -146,12 +146,12 @@ def get_available_ai_models() -> list[str]:
     return models
 
 def get_system_timezone_name() -> str:
-    """Obtiene el nombre de la zona horaria del sistema operativo.
+    """Retrieve the host operating system's timezone name.
 
-    Ejecuta tzset() para inicializar y sincronizar las variables de zona horaria.
+    Calls tzset() to initialize timezone variables.
 
     Returns:
-        str: Nombre o identificador de la zona horaria local (ej. 'CET', 'Europe/Madrid').
+        str: Local timezone name or identifier (e.g. 'CET', 'Europe/Madrid').
     """
     tzset()
     return tzname[0]
