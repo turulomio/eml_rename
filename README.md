@@ -115,6 +115,8 @@ delay = 2
 
 ## Command-Line Options
 
+<img src="https://raw.githubusercontent.com/turulomio/eml_rename/master/doc/help.gif?raw=true" width="100%"></img>
+
 | Option | Description |
 |---|---|
 | `path` | Optional path(s) to `.eml` file(s) or directory. Defaults to current directory. |

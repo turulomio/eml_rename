@@ -55,20 +55,61 @@
 #   Hide                            Hide the subsequent commands from the output
 #   Show                            Show the subsequent commands in the output
 
+# VHS Tape: Demostración del uso de eml_rename
+# Genera command.gif
+
 Output command.gif
 
 Require echo
 
 Set Shell "bash"
-Set FontSize 14
+Set FontSize 15
 Set Width 1200
-Set Height 400
+Set Height 650
 Set WindowBar Colorful
+Set Theme "Catppuccin Mocha"
+Set TypingSpeed 50ms
+Set PlaybackSpeed 1.0
 
-# Espera un segundo para que la terminal aparezca
+# Prepara el entorno accediendo al directorio demo
+Hide
+Type "cd demo && clear" Enter
 Sleep 1s
-Type "eml_rename --help" Enter
-Sleep 10s
+Show
 
+# 1. Mostrar los correos originales antes del procesado
+Type "# Paso 1: Correos originales sin formato" Enter
+Sleep 1.5s
+Type "ls -1" Enter
+Sleep 3s
 
+# 2. Ejecutar eml_rename en modo simulación (dry-run sin modificar ficheros)
+Enter
+Type "# Paso 2: Simulamos el renombrado con eml_rename (dry-run)" Enter
+Sleep 1.5s
+Type "eml_rename" Enter
+Sleep 6s
+
+# 3. Aplicar el renombrado real en disco mediante la opción --save
+Enter
+Type "# Paso 3: Aplicamos los cambios en disco con --save" Enter
+Sleep 1.5s
+Type "eml_rename --save" Enter
+Sleep 6s
+
+# 4. Comprobar los nuevos nombres estandarizados: YYYYMMDD HHMM [remitente] asunto
+Enter
+Type "# Paso 4: Comprobamos los nuevos nombres de archivo generados" Enter
+Sleep 1.5s
+Type "ls -1" Enter
+Sleep 4s
+
+# 5. Volver a ejecutar para verificar la protección de ficheros ya renombrados
+Enter
+Type "# Paso 5: Proteccion: los ficheros ya formateados se respetan" Enter
+Sleep 1.5s
+Type "eml_rename" Enter
+Sleep 5s
+
+Sleep 2s
 
