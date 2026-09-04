@@ -188,7 +188,7 @@ class EmlFile():
                 Content: '{self.body}'
                 """
 
-                response = client.models.generate_content(model='gemma-3n-e4b-it', contents=prompt)
+                response = client.models.generate_content(model='gemini-2.5-flash', contents=prompt)
                 if response and response.text:
                     return self.remove_illegal_chars(response.text)
             except Exception as e:
