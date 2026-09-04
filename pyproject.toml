@@ -22,6 +22,11 @@ poethepoet = ">=0.48.0"
 pytest = ">=9.1.1"
 coverage = ">=7.16.0"
 
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore::DeprecationWarning:google.genai.types",
+]
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
