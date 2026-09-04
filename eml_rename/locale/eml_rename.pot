@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-04 09:38+0200\n"
+"POT-Creation-Date: 2026-09-04 10:00+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,6 +30,9 @@ msgid "The 'google-genai' package is not installed. Please run 'pip install goog
 msgstr ""
 
 msgid "Script renames all eml files in a directory using mail metadata "
+msgstr ""
+
+msgid "Optional path(s) to .eml file(s) or directory. Defaults to current directory."
 msgstr ""
 
 msgid "Forces subject update when 'YYYYMMDD HHMM [from]' format is detected"
@@ -69,6 +72,10 @@ msgstr ""
 
 #, python-brace-format
 msgid "Warning: Configured model '{0}' is not available in the API. Defaulting to '{1}'."
+msgstr ""
+
+#, python-brace-format
+msgid "File or path not found: {0}"
 msgstr ""
 
 msgid "Processing eml files"

@@ -150,3 +150,44 @@ def test_main_ai_model_save_and_warning(tmp_path, monkeypatch, test_fs, capsys):
     assert "new-model" in captured2.out
     assert "gemini-2.5-flash" in captured2.out
 
+
+def test_eml_rename_with_specific_file_and_directory(test_fs, monkeypatch):
+    import os
+    from pathlib import Path
+
+    # Create a subfolder with an email
+    subfolder = Path(test_fs["test_dir"]) / "subfolder"
+    subfolder.mkdir()
+    sub_email = subfolder / "custom_sub.eml"
+    sub_email.write_text("""From: "Sub Test" <sub@example.org>
+Date: Fri, 15 Sep 2023 10:00:00 +0200
+Subject: Subfolder Email
+Content-Type: text/plain; charset="utf-8"
+
+Content inside subfolder.
+""")
+
+    # 1. Test passing a specific file path
+    eml_rename(save=True, path=str(sub_email))
+    assert not sub_email.exists()
+    expected_sub_file = subfolder / "20230915 1000 [sub@example.org] Subfolder Email.eml"
+    assert expected_sub_file.exists()
+
+    # Create another email inside subfolder to test passing directory path
+    sub_email2 = subfolder / "another.eml"
+    sub_email2.write_text("""From: "Dir Test" <dir@example.org>
+Date: Fri, 15 Sep 2023 11:00:00 +0200
+Subject: Directory Test
+Content-Type: text/plain; charset="utf-8"
+
+Another inside subfolder.
+""")
+
+    # 2. Test passing directory path via CLI
+    monkeypatch.setattr('sys.argv', ['eml_rename', '--save', str(subfolder)])
+    main()
+    assert not sub_email2.exists()
+    expected_sub_file2 = subfolder / "20230915 1100 [dir@example.org] Directory Test.eml"
+    assert expected_sub_file2.exists()
+
+

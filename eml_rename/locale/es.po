@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: eml_rename\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-04 09:38+0200\n"
+"POT-Creation-Date: 2026-09-04 09:59+0200\n"
 "PO-Revision-Date: 2025-01-24 12:00+0100\n"
 "Last-Translator: trabajo <turulomio@yahoo.es>\n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
@@ -33,6 +33,9 @@ msgstr "El paquete 'google-genai' no está instalado. Por favor, ejecuta 'pip in
 
 msgid "Script renames all eml files in a directory using mail metadata "
 msgstr "Este comando renombra todos los ficheros eml en un directorio usando los metadatos del correo"
+
+msgid "Optional path(s) to .eml file(s) or directory. Defaults to current directory."
+msgstr "Ruta(s) opcional(es) a fichero(s) .eml o directorio. Por defecto usa el directorio actual."
 
 msgid "Forces subject update when 'YYYYMMDD HHMM [from]' format is detected"
 msgstr "Fuerza la modificación del asunto cuando el formato 'YYYYMMDD HHMM [Desde]' es detectado"
@@ -72,6 +75,10 @@ msgstr "Modelo de IA establecido en '{0}' y guardado en la configuración."
 #, python-brace-format
 msgid "Warning: Configured model '{0}' is not available in the API. Defaulting to '{1}'."
 msgstr "Aviso: El modelo configurado '{0}' no está disponible en la API. Usando por defecto '{1}'."
+
+#, python-brace-format
+msgid "File or path not found: {0}"
+msgstr "Fichero o ruta no encontrada: {0}"
 
 msgid "Processing eml files"
 msgstr "Procesando ficheros eml"
