@@ -168,6 +168,7 @@ class EmlFile():
                 return self.get_mail_subject()
             try:
                 from google import genai
+                from google.genai import types
             except ImportError:
                 raise Exception(_("The 'google-genai' package is not installed. Please run 'pip install google-genai' or 'poetry install'."))
 
@@ -175,20 +176,38 @@ class EmlFile():
                 if not self.google_api_key:
                     raise Exception(_("GOOGLE_API_KEY not found. Set it in environment or in ~/.config/eml-rename/config.ini"))
                 client = genai.Client(api_key=self.google_api_key)
-                prompt = f"""Summarize the following email content in a single sentence, maximum 100 characters, to be used as a file name subject. The sentence must be in spanish. 
 
-                Trata de quitar articulos y letras innecesaria. Debe dar un esquema de contenido. No detalles
+                # Limita la entrada a los primeros 3.000 caracteres para reducir el consumo de tokens
+                # en correos con hilos extensos, firmas largas o volcados de texto.
+                body_sample = self.body[:3000] if len(self.body) > 3000 else self.body
 
-                Quiero la idea fuerza de forma esquemática
-                
-                No pongas un punto al final.
-                
-                Asegúrate de que la respuesta esté codificada en UTF-8.
+                config = types.GenerateContentConfig(
+                    # max_output_tokens: Limita la respuesta a un máximo de 50 tokens (~150-200 caracteres),
+                    # evitando explicaciones sobrantes o texto redundante.
+                    max_output_tokens=50,
+                    # temperature: Valor bajo (0.1) para priorizar respuestas deterministas, concisas y directas.
+                    temperature=0.1,
+                    # thinking_budget=0: Desactiva los tokens de razonamiento interno de Gemini 2.5 Flash,
+                    # ahorrando cientos de tokens de 'thinking' innecesarios para un resumen simple.
+                    thinking_config=types.ThinkingConfig(thinking_budget=0),
+                    # disable=True: Desactiva el Automatic Function Calling (AFC) para eliminar la sobrecarga
+                    # del SDK y suprimir avisos de consola al no utilizar herramientas/funciones.
+                    automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
+                    # system_instruction: Define el rol del modelo y las reglas de formato esperadas
+                    # para que la respuesta sea directamente utilizable como nombre de archivo.
+                    system_instruction=(
+                        "Resume el correo en una sola frase breve (máximo 80 caracteres) "
+                        "en español para usar como asunto de archivo. "
+                        "Esquemático, conciso, sin artículos innecesarios, sin punto final ni formato markdown."
+                    ),
+                )
 
-                Content: '{self.body}'
-                """
-
-                response = client.models.generate_content(model='gemini-2.5-flash', contents=prompt)
+                response = client.models.generate_content(
+                    # Modelo estándar recomendado por Google para tareas rápidas y de bajo coste con soporte multimodal/texto.
+                    model='gemini-2.5-flash',
+                    contents=f"Correo:\n{body_sample}",
+                    config=config,
+                )
                 if response and response.text:
                     return self.remove_illegal_chars(response.text)
             except Exception as e:
