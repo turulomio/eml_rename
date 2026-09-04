@@ -1,0 +1,116 @@
+# Chinese translations for eml_rename package.
+# Copyright (C) 2026 Mariano Muñoz
+# This file is distributed under the same license as the eml_rename package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: eml_rename\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-04 11:27+0200\n"
+"PO-Revision-Date: 2026-09-04 11:30+0200\n"
+"Last-Translator: Antigravity\n"
+"Language-Team: Chinese Simplified\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "You pressed 'Ctrl+C', exiting..."
+msgstr "您按下了 'Ctrl+C'，正在退出..."
+
+msgid "Developed by Mariano Muñoz 2022-{}"
+msgstr "由 Mariano Muñoz 开发 2022-{}"
+
+msgid "GOOGLE_API_KEY not found. Set it in environment or in ~/.config/eml-rename/config.ini"
+msgstr "未找到 GOOGLE_API_KEY。请在环境变量或 ~/.config/eml-rename/config.ini 中设置"
+
+msgid "The 'google-genai' package is not installed. Please run 'pip install google-genai' or 'poetry install'."
+msgstr "未安装 'google-genai' 包。请运行 'pip install google-genai' 或 'poetry install'。"
+
+msgid "Script renames all eml files in a directory using mail metadata "
+msgstr "本脚本使用邮件元数据重命名目录中的所有 eml 文件 "
+
+msgid "Optional path(s) to .eml file(s) or directory. Defaults to current directory."
+msgstr "指向 .eml 文件或目录的可选路径。默认为当前目录。"
+
+msgid "Forces subject update when 'YYYYMMDD HHMM [from]' format is detected"
+msgstr "当检测到 'YYYYMMDD HHMM [发件人]' 格式时强制更新主题"
+
+#, python-brace-format
+msgid "Maximum length allowed to final name using 'YYYYMMDD HHMM [from]'. Default: {0}"
+msgstr "使用 'YYYYMMDD HHMM [发件人]' 格式时允许的最终名称最大长度。默认值：{0}"
+
+msgid "Without this parameter files won't be renamed. Script only pretend the result"
+msgstr "没有此参数，文件将不会被重命名。脚本仅模拟结果"
+
+msgid "Use Gemini AI to summarize email content as subject"
+msgstr "使用 Gemini AI 总结邮件内容作为主题"
+
+msgid "Delay between AI requests"
+msgstr "AI 请求之间的延迟"
+
+msgid "List available Gemini AI models for content generation and exit"
+msgstr "列出可用于内容生成的 Gemini AI 模型并退出"
+
+msgid "Specify Gemini AI model to use and save it to configfile"
+msgstr "指定要使用的 Gemini AI 模型并将其保存到配置文件"
+
+msgid "Available Gemini AI models:"
+msgstr "可用的 Gemini AI 模型："
+
+msgid "(configured)"
+msgstr "(已配置)"
+
+msgid "Error retrieving models"
+msgstr "获取模型时出错"
+
+#, python-brace-format
+msgid "AI model set to '{0}' and saved to configuration."
+msgstr "AI 模型已设置为 '{0}' 并保存到配置。"
+
+#, python-brace-format
+msgid "Warning: Configured model '{0}' is not available in the API. Defaulting to '{1}'."
+msgstr "警告：配置的模型 '{0}' 在 API 中不可用。默认使用 '{1}'。"
+
+#, python-brace-format
+msgid "File or path not found: {0}"
+msgstr "未找到文件或路径：{0}"
+
+msgid "Processing eml files"
+msgstr "正在处理 eml 文件"
+
+#, python-brace-format
+msgid "{0} files were renamed."
+msgstr "已重命名 {0} 个文件。"
+
+#, python-brace-format
+msgid "Process was simulated, files weren't renamed. Use --save to rename {0} files."
+msgstr "已模拟处理，未重命名文件。使用 --save 重命名 {0} 个文件。"
+
+msgid "It took {}"
+msgstr "耗时 {}"
+
+msgid "(Without subject)"
+msgstr "(无主题)"
+
+msgid "Error parsing subject"
+msgstr "解析主题时出错"
+
+msgid "[Error detected. Won't be renamed]"
+msgstr "[检测到错误。不会重命名]"
+
+msgid "[Error detected. Not Renamed]"
+msgstr "[检测到错误。未重命名]"
+
+msgid "[Will be renamed]"
+msgstr "[将被重命名]"
+
+msgid "[Renamed]"
+msgstr "[已重命名]"
+
+msgid "[Format detected. Won't de renamed]"
+msgstr "[已检测到格式。不会重命名]"
+
+msgid "[Format detected. Not renamed]"
+msgstr "[已检测到格式。未重命名]"

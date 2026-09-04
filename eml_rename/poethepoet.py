@@ -1,7 +1,7 @@
-"""Tareas de automatización y desarrollo para el proyecto eml_rename con Poe the Poet.
+"""Development and automation tasks for eml_rename project with Poe the Poet.
 
-Incluye tareas para lanzamiento de versiones (release), compilación de traducciones (translate),
-cobertura de pruebas (coverage) y generación de vídeos demostrativos (video) con VHS.
+Includes tasks for releases (release), gettext translation compilation (translate),
+test coverage reporting (coverage), and demonstration GIF generation (video) with VHS.
 """
 
 from os import system, chdir
@@ -12,13 +12,13 @@ from eml_rename import __version__
 
 
 def create_demo_emails(demo_dir: Path) -> None:
-    """Crea un conjunto de correos electrónicos ficticios (.eml) para la grabación demostrativa.
+    """Create a set of fictitious email (.eml) files for video demonstration.
 
     Args:
-        demo_dir (Path): Directorio donde se crearán los archivos .eml de prueba.
+        demo_dir (Path): Directory where sample .eml files will be created.
     """
     demo_dir.mkdir(parents=True, exist_ok=True)
-    # Limpiar posibles ficheros previos
+    # Clear prior demo files if any
     for f in demo_dir.glob("*.eml"):
         f.unlink()
 
@@ -87,9 +87,9 @@ def create_demo_emails(demo_dir: Path) -> None:
 
 
 def release():
-    """Muestra la lista de comprobación y pasos necesarios para publicar una nueva versión."""
-    print("""Nueva versión:
-  * Cambiar la versión y la fecha en commons.py y en pyproject
+    """Display checklist and instructions to release a new version."""
+    print("""New version checklist:
+  * Update version and date in commons.py and pyproject.toml
   * poe translate
   * linguist
   * poe translate
@@ -97,40 +97,47 @@ def release():
   * poe video
   * git commit -a -m 'eml_rename-{0}'
   * git push
-  * Hacer un nuevo tag en GitHub
+  * Create a new release/tag on GitHub
   * git checkout main
   * git pull
   * poetry build 
   * poetry publish
-  * Crea un nuevo ebuild de eml_rename Gentoo con la nueva versión
-  * Subelo al repositorio del portage
+  * Create a new Gentoo ebuild of eml_rename with the new version
+  * Upload it to the portage repository
 
 """.format(__version__))
 
 
 def translate():
-    """Extrae las cadenas traducibles y compila los archivos de mensajes gettext .po a .mo."""
-    # es
+    """Extract translatable strings and compile gettext .po files to binary .mo catalogs."""
+    languages = ["es", "fr", "pt", "ru", "ro", "zh_CN", "hi"]
     system("xgettext -L Python --no-wrap --no-location --from-code='UTF-8' -o eml_rename/locale/eml_rename.pot eml_rename/*.py")
-    system("msgmerge -N --no-wrap -U eml_rename/locale/es.po eml_rename/locale/eml_rename.pot")
-    system("msgfmt -cv -o eml_rename/locale/es/LC_MESSAGES/eml_rename.mo eml_rename/locale/es.po")
-    system("msgfmt -cv -o eml_rename/locale/en/LC_MESSAGES/eml_rename.mo eml_rename/locale/en.po")
+    for lang in languages:
+        mo_dir = Path(f"eml_rename/locale/{lang}/LC_MESSAGES")
+        mo_dir.mkdir(parents=True, exist_ok=True)
+        system(f"msgmerge -N --no-wrap -U eml_rename/locale/{lang}.po eml_rename/locale/eml_rename.pot")
+        system(f"msgfmt -cv -o eml_rename/locale/{lang}/LC_MESSAGES/eml_rename.mo eml_rename/locale/{lang}.po")
+
+    # Also compile to 'zh' so both 'zh' and 'zh_CN' work
+    zh_dir = Path("eml_rename/locale/zh/LC_MESSAGES")
+    zh_dir.mkdir(parents=True, exist_ok=True)
+    system("msgfmt -cv -o eml_rename/locale/zh/LC_MESSAGES/eml_rename.mo eml_rename/locale/zh_CN.po")
 
 
 def coverage():
-    """Ejecuta los tests unitarios con medición de cobertura y genera el informe HTML."""
+    """Run unit tests with code coverage analysis and generate HTML report."""
     system("coverage run -m pytest && coverage report && coverage html")
 
 
 def video():
-    """Genera las animaciones GIF demostrativas (command.gif y help.gif) utilizando vhs y correos ficticios.
+    """Generate demonstration GIF animations (command.gif and help.gif) using VHS and demo emails.
 
-    Comprueba la disponibilidad de la herramienta 'vhs' (vhs-bin), genera correos de prueba
-    en doc/demo/ y ejecuta 'vhs' sobre command.tape y help.tape dentro de la carpeta doc/.
+    Checks VHS tool availability (vhs-bin package), generates test emails in doc/demo/,
+    and runs VHS on command.tape and help.tape in doc/.
     """
     vhs = which("vhs")
     if vhs is None:
-        print("Se necesita la herramienta 'vhs' (paquete 'vhs-bin' en Arch Linux o https://github.com/charmbracelet/vhs).")
+        print("The 'vhs' tool is required (package 'vhs-bin' on Arch Linux or https://github.com/charmbracelet/vhs).")
         sys.exit(1)
 
     project_root = Path(__file__).resolve().parent.parent
@@ -140,20 +147,20 @@ def video():
 
     for tape_file in tape_files:
         if not tape_file.exists():
-            print(f"Error: no se encontró el archivo de grabación: {tape_file}")
+            print(f"Error: tape recording file not found: {tape_file}")
             sys.exit(1)
 
-    print("Preparando correos electrónicos ficticios en doc/demo/...")
+    print("Preparing fictitious demo emails in doc/demo/...")
     create_demo_emails(demo_dir)
 
     chdir(doc_dir)
     for tape_file in tape_files:
-        print(f"Generando GIF con {vhs} {tape_file.name}...")
+        print(f"Generating GIF with {vhs} {tape_file.name}...")
         ret = system(f"{vhs} {tape_file.name}")
         if ret != 0:
-            print(f"Error durante la ejecución de vhs para {tape_file.name} (código de salida: {ret}).")
+            print(f"Error running vhs for {tape_file.name} (exit code: {ret}).")
             sys.exit(ret)
-        print(f"Demostración generada con éxito a partir de {tape_file.name}.")
+        print(f"Demo GIF successfully generated from {tape_file.name}.")
 
-    print("Todas las grabaciones (command.gif y help.gif) han sido generadas con éxito en doc/.")
+    print("All recording GIFs (command.gif and help.gif) generated successfully in doc/.")
 
