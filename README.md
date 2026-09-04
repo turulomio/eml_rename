@@ -21,7 +21,8 @@ I took this idea from an article of Armand Niculescu (August 20, 2014) at https:
 
 <img src="https://raw.githubusercontent.com/turulomio/eml_rename/master/doc/command.gif?raw=true" width="100%"></img>
 
-- Automatically renames all *.eml files in a directory, using email metadata. 
+- Automatically renames all *.eml files in a directory, using email metadata.
+- By default it processes all *.eml files in the current working directory, but you can pass an optional path to a specific .eml file or directory: `eml_rename path/to/file.eml`
 - Renamed files will have this format is 'YYYYMMDD HHMM [From] Subject'
 - If 'YYYYMMDD HHMM [From]' format is detected the script won't rename the file. With this feature user can change subject manually and the script won't overwrite it.
 - If you use --force parameter the script will overwrite all files even they have the 'YYYYMMDD HHMM [From]' format.
@@ -44,4 +45,9 @@ Crea un archivo en `~/.config/eml-rename/config.ini` con el siguiente contenido:
 ```ini
 [auth]
 GOOGLE_API_KEY = tu_clave_aqui
+
+[ai]
+model_name = gemini-2.5-flash
 ```
+
+Puedes listar los modelos disponibles con `eml_rename --ai_models` o cambiar y guardar el modelo con `eml_rename --ai_model MODELO`.

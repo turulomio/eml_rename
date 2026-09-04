@@ -278,7 +278,10 @@ class EmlFile():
             aclaration=_("[Format detected. Won't de renamed]") if save is False else _("[Format detected. Not renamed]") 
             return colors.yellow(self.final_name())+  " " + colors.blue(aclaration)
             
+    def final_path(self):
+        return Path(self.path).parent / self.final_name()
+
     def write(self, force):
         if self.will_be_renamed(force):
-            rename(self.path, self.final_name())
+            rename(self.path, self.final_path())
             

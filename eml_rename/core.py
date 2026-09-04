@@ -8,6 +8,7 @@ from eml_rename.emlfile import EmlFile
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from glob import glob
+from pathlib import Path
 
 from multiprocessing import cpu_count
 from signal import signal,  SIGINT
@@ -20,6 +21,7 @@ def main():
     signal(SIGINT, signal_handler)
     default_length=140
     parser=ArgumentParser(description=_('Script renames all eml files in a directory using mail metadata '), epilog=argparse_epilog(), formatter_class=RawTextHelpFormatter)
+    parser.add_argument('path', nargs='*', default=None, help=_("Optional path(s) to .eml file(s) or directory. Defaults to current directory."))
     parser.add_argument('--version', action='version', version=__version__)
     parser.add_argument('--force', help=_("Forces subject update when 'YYYYMMDD HHMM [from]' format is detected"), action="store_true", default=False)
     parser.add_argument('--length', help=_("Maximum length allowed to final name using 'YYYYMMDD HHMM [from]'. Default: {0}").format(default_length), action="store", default=default_length,  type=int)
@@ -59,16 +61,31 @@ def main():
         except Exception:
             pass
 
-    eml_rename(args.force, args.length, args.save, args.ai, args.ai_delay, ai_model)
+    eml_rename(args.force, args.length, args.save, args.ai, args.ai_delay, ai_model, args.path)
 
-def eml_rename(force=False, length=140, save=False, ia=False, ia_delay=2, ai_model=None):        
+def eml_rename(force=False, length=140, save=False, ia=False, ia_delay=2, ai_model=None, path=None):        
     start=datetime.now()
     if ai_model is None:
         ai_model = get_ai_model()
     
     filenames=[]
-    for filename in glob( "*.eml", recursive=False):
-        filenames.append(filename)
+    if path:
+        paths = [path] if isinstance(path, (str, Path)) else path
+        for p in paths:
+            p_obj = Path(p)
+            if p_obj.is_dir():
+                filenames.extend(sorted(str(f) for f in p_obj.glob("*.eml")))
+            elif p_obj.is_file():
+                filenames.append(str(p_obj))
+            else:
+                matched = sorted(glob(str(p)))
+                if matched:
+                    filenames.extend(matched)
+                else:
+                    print(colors.red(_("File or path not found: {0}").format(p)))
+    else:
+        for filename in sorted(glob( "*.eml", recursive=False)):
+            filenames.append(filename)
 
     
     futures=[]
