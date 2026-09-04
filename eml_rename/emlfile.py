@@ -1,3 +1,10 @@
+"""Módulo de procesamiento y representación de archivos de correo electrónico (.eml).
+
+Define la clase EmlFile, encargada de analizar las cabeceras MIME, extraer y normalizar
+la fecha a la zona horaria del sistema, detectar codificaciones, sanitizar textos,
+generar resúmenes con IA de Google Gemini y efectuar el renombrado de ficheros.
+"""
+
 import codecs
 from chardet import detect
 from datetime import datetime
@@ -12,9 +19,25 @@ from zoneinfo import ZoneInfo
 from .commons import get_google_api_key, get_system_timezone_name, get_ai_model, get_available_ai_models, _
 
 
-## Class to work with eml file
-class EmlFile():
+class EmlFile:
+    """Representa y gestiona un archivo de correo electrónico individual (.eml).
+
+    Extrae metadatos esenciales (fecha, remitente, asunto y cuerpo), determina la codificación,
+    soporta generación de asunto mediante IA (Google Gemini) y calcula el nuevo nombre estandarizado
+    con formato 'YYYYMMDD HHMM [remitente] asunto.eml'.
+    """
+
     def __init__(self, path, length, ia=False, force=False, ia_delay=2, ai_model=None):
+        """Inicializa una instancia de EmlFile y analiza sus metadatos.
+
+        Args:
+            path (str | Path): Ruta al archivo .eml a procesar.
+            length (int): Longitud máxima permitida para el nombre final de archivo.
+            ia (bool, optional): Indica si debe resumirse el cuerpo con IA. Por defecto False.
+            force (bool, optional): Fuerza el renombrado aunque el archivo ya tenga prefijo estándar. Por defecto False.
+            ia_delay (int, optional): Segundos de pausa entre llamadas consecutivas a la IA. Por defecto 2.
+            ai_model (str, optional): Nombre del modelo Gemini a utilizar. Si es None, toma el de la configuración.
+        """
         self.path=path
         self.ia_requested=ia # Store if AI was requested
         self.length=length
@@ -37,7 +60,15 @@ class EmlFile():
         else:
             self.subject=self.get_mail_subject()
                 
-    def get_file_encoding(self):        #Guessing file chart
+    def get_file_encoding(self) -> str:
+        """Detecta la codificación de caracteres del archivo .eml mediante chardet.
+
+        Lee una muestra inicial de hasta 10.000 bytes. Devuelve 'utf-8' como fallback
+        si no se puede determinar la codificación o si se detecta 'utf-7'.
+
+        Returns:
+            str: Nombre de la codificación detectada o 'utf-8' ante excepciones o formatos no reconocidos.
+        """
         try:
             with open(self.path, "rb") as f:
                 detected=detect(f.read(10000)) 
@@ -53,7 +84,11 @@ class EmlFile():
             return "utf-8"
 
     def get_mail_from(self):
-        #Parse file and load used metadata            
+        """Extrae la dirección de correo electrónico del remitente a partir de la cabecera 'From'.
+
+        Returns:
+            str | None: Dirección de email del remitente (ej. 'usuario@ejemplo.com') o None en caso de error.
+        """
         try:
             with open(self.path, "r", encoding=self.file_encoding, errors="replace") as f:
                 metadata=HeaderParser().parse(f)
@@ -62,7 +97,15 @@ class EmlFile():
         except Exception as e:
             self.error_message.append(str(e))
 
-    def get_mail_datetime(self):       
+    def get_mail_datetime(self):
+        """Extrae la fecha del correo y la convierte a la zona horaria del sistema.
+
+        Lee la cabecera 'Date' MIME, la interpreta y transforma el objeto datetime
+        al huso horario local configurado en el sistema operativo.
+
+        Returns:
+            datetime | None: Objeto datetime con zona horaria convertida o None si falla el análisis.
+        """
         try:
             with open(self.path, "r", encoding=self.file_encoding, errors="replace") as f:
                 metadata=HeaderParser().parse(f)
@@ -72,9 +115,15 @@ class EmlFile():
         except Exception as e:
             self.error_message.append(str(e))
 
-
     def get_mail_body(self):
-        #Parse file and load used metadata            
+        """Extrae el contenido de texto plano del cuerpo del mensaje de correo.
+
+        Si el correo es de tipo multiparte (multipart), recorre sus partes hasta encontrar
+        la primera de tipo 'text/plain'. Si no es multiparte, decodifica directamente el contenido.
+
+        Returns:
+            str: Texto plano decodificado del cuerpo del mensaje, o cadena vacía si no se encuentra.
+        """
         try:
             with open(self.path, "r", encoding=self.file_encoding, errors="replace") as f:
                 body = ""
@@ -95,9 +144,15 @@ class EmlFile():
         except Exception as e:
             self.error_message.append(str(e))
 
+    def get_mail_subject(self):
+        """Extrae, decodifica y sanitiza el asunto (Subject) de las cabeceras del correo.
 
+        Maneja la decodificación de cabeceras RFC 2047 en múltiples fragmentos y codificaciones.
+        Si el correo no tiene asunto o queda vacío tras la limpieza, devuelve '(Without subject)'.
 
-    def get_mail_subject(self):      
+        Returns:
+            str: Asunto decodificado y saneado para uso seguro como nombre de archivo.
+        """
         empty_answer= _("(Without subject)")     
         try:
             with open(self.path, "r", encoding=self.file_encoding, errors="replace") as f:
@@ -124,9 +179,13 @@ class EmlFile():
             return empty_answer
 
     def _get_prefix_from_filename(self, filename):
-        """
-        Extracts the 'YYYYMMDD HHMM [From]' part from a filename if it matches the pattern.
-        Returns the prefix string or None.
+        """Extrae el prefijo con formato 'YYYYMMDD HHMM [remitente]' del nombre de archivo si coincide con el patrón.
+
+        Args:
+            filename (str | Path): Nombre o ruta del archivo a verificar.
+
+        Returns:
+            str | None: La cadena del prefijo si coincide con el patrón, o None en caso contrario.
         """
         file_stem = Path(filename).stem # Get filename without extension
         arr = file_stem.split(" ", 3) # Split at most 3 times to get date, time, from, and rest
@@ -151,70 +210,104 @@ class EmlFile():
         return f"{date_part} {time_part} {from_part}"
 
     def get_google_ia_models(self):
+        """Obtiene e imprime por consola los modelos de IA de Google Gemini disponibles.
+
+        Returns:
+            list[str]: Lista de nombres de modelos recuperados.
+        """
         models = get_available_ai_models()
         for m in models:
             print(f"Found model: {m}")
         return models
 
     def get_mail_subject_with_ia(self):
-            if casts.is_noe(self.body):
-                return self.get_mail_subject()
-            try:
-                from google import genai
-                from google.genai import types
-            except ImportError:
-                raise Exception(_("The 'google-genai' package is not installed. Please run 'pip install google-genai' or 'poetry install'."))
+        """Genera un asunto conciso resumiendo el cuerpo del correo mediante la API de Google Gemini.
 
-            try:
-                if not self.google_api_key:
-                    raise Exception(_("GOOGLE_API_KEY not found. Set it in environment or in ~/.config/eml-rename/config.ini"))
-                client = genai.Client(api_key=self.google_api_key)
+        Envía una muestra del cuerpo del mensaje (máximo 3.000 caracteres) al modelo configurado
+        usando ajustes optimizados para bajo consumo de tokens (temperature=0.1, thinking_budget=0,
+        max_output_tokens=50). Si la llamada a la IA falla, recurre automáticamente al asunto original del correo.
 
-                # Limita la entrada a los primeros 3.000 caracteres para reducir el consumo de tokens
-                # en correos con hilos extensos, firmas largas o volcados de texto.
-                body_sample = self.body[:3000] if len(self.body) > 3000 else self.body
+        Returns:
+            str: Resumen del contenido generado por la IA o el asunto extraído en caso de error.
 
-                config = types.GenerateContentConfig(
-                    # max_output_tokens: Limita la respuesta a un máximo de 50 tokens (~150-200 caracteres),
-                    # evitando explicaciones sobrantes o texto redundante.
-                    max_output_tokens=50,
-                    # temperature: Valor bajo (0.1) para priorizar respuestas deterministas, concisas y directas.
-                    temperature=0.1,
-                    # thinking_budget=0: Desactiva los tokens de razonamiento interno de Gemini 2.5 Flash,
-                    # ahorrando cientos de tokens de 'thinking' innecesarios para un resumen simple.
-                    thinking_config=types.ThinkingConfig(thinking_budget=0),
-                    # disable=True: Desactiva el Automatic Function Calling (AFC) para eliminar la sobrecarga
-                    # del SDK y suprimir avisos de consola al no utilizar herramientas/funciones.
-                    automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
-                    # system_instruction: Define el rol del modelo y las reglas de formato esperadas
-                    # para que la respuesta sea directamente utilizable como nombre de archivo.
-                    system_instruction=(
-                        "Resume el correo en una sola frase breve (máximo 80 caracteres) "
-                        "en español para usar como asunto de archivo. "
-                        "Esquemático, conciso, sin artículos innecesarios, sin punto final ni formato markdown."
-                    ),
-                )
+        Raises:
+            Exception: Si google-genai no está instalado o no se encuentra GOOGLE_API_KEY.
+        """
+        if casts.is_noe(self.body):
+            return self.get_mail_subject()
+        try:
+            from google import genai
+            from google.genai import types
+        except ImportError:
+            raise Exception(_("The 'google-genai' package is not installed. Please run 'pip install google-genai' or 'poetry install'."))
 
-                response = client.models.generate_content(
-                    model=self.ai_model,
-                    contents=f"Correo:\n{body_sample}",
-                    config=config,
-                )
-                if response and response.text:
-                    return self.remove_illegal_chars(response.text)
-            except Exception as e:
-                self.error_message.append(f"AI Error: {str(e)}")
-                return self.get_mail_subject() # Fallback to non-AI subject if AI fails
+        try:
+            if not self.google_api_key:
+                raise Exception(_("GOOGLE_API_KEY not found. Set it in environment or in ~/.config/eml-rename/config.ini"))
+            client = genai.Client(api_key=self.google_api_key)
 
-                
+            # Limita la entrada a los primeros 3.000 caracteres para reducir el consumo de tokens
+            # en correos con hilos extensos, firmas largas o volcados de texto.
+            body_sample = self.body[:3000] if len(self.body) > 3000 else self.body
+
+            config = types.GenerateContentConfig(
+                # max_output_tokens: Limita la respuesta a un máximo de 50 tokens (~150-200 caracteres),
+                # evitando explicaciones sobrantes o texto redundante.
+                max_output_tokens=50,
+                # temperature: Valor bajo (0.1) para priorizar respuestas deterministas, concisas y directas.
+                temperature=0.1,
+                # thinking_budget=0: Desactiva los tokens de razonamiento interno de Gemini 2.5 Flash,
+                # ahorrando cientos de tokens de 'thinking' innecesarios para un resumen simple.
+                thinking_config=types.ThinkingConfig(thinking_budget=0),
+                # disable=True: Desactiva el Automatic Function Calling (AFC) para eliminar la sobrecarga
+                # del SDK y suprimir avisos de consola al no utilizar herramientas/funciones.
+                automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
+                # system_instruction: Define el rol del modelo y las reglas de formato esperadas
+                # para que la respuesta sea directamente utilizable como nombre de archivo.
+                system_instruction=(
+                    "Resume el correo en una sola frase breve (máximo 80 caracteres) "
+                    "en español para usar como asunto de archivo. "
+                    "Esquemático, conciso, sin artículos innecesarios, sin punto final ni formato markdown."
+                ),
+            )
+
+            response = client.models.generate_content(
+                model=self.ai_model,
+                contents=f"Correo:\n{body_sample}",
+                config=config,
+            )
+            if response and response.text:
+                return self.remove_illegal_chars(response.text)
+        except Exception as e:
+            self.error_message.append(f"AI Error: {str(e)}")
+            return self.get_mail_subject() # Fallback to non-AI subject if AI fails
+
     def final_name(self):
+        """Calcula el nombre de archivo final estandarizado para el correo.
+
+        El formato es: 'YYYYMMDD HHMM [remitente] asunto.eml'.
+        Si la longitud excede self.length, recorta el nombre manteniendo la extensión .eml.
+
+        Returns:
+            str: Nombre de archivo resultante con extensión .eml.
+        """
         basename=f"{casts.dtaware2str(self.dt, '%Y%m%d %H%M')} [{self.from_}] {self.subject}"
         if len(basename)>self.length:
             basename=basename[0:self.length-4]
         return basename+".eml"
 
-
     def remove_illegal_chars(self, s):
+        """Elimina caracteres ilegales o conflictivos para nombres de archivo en sistemas de ficheros.
+
+        Suprime caracteres reservados (<, >, :, \", /, \\, |, ?, *, saltos de línea, corchetes, etc.)
+        y colapsa espacios o puntos consecutivos.
+
+        Args:
+            s (str): Cadena de texto a sanitizar.
+
+        Returns:
+            str: Cadena limpia y apta para formar parte de un nombre de fichero.
+        """
         illegal_chars = '<>:"/\\|?*\n\t-_()[]{}¿'
         s = s.strip()
         s = s[:-1] if s.endswith(".") else s
@@ -224,17 +317,26 @@ class EmlFile():
             s = s.replace("  ", " ")
         return s
 
-    ##Method that detects if path has eml_rename format and returns a Boolean
     def filename_format_detected(self):
-        """
-        Checks if the current file's name matches the 'YYYYMMDD HHMM [From]' pattern.
+        """Comprueba si el nombre del archivo actual ya cuenta con el formato estándar 'YYYYMMDD HHMM [remitente]'.
+
+        Returns:
+            bool: True si el nombre actual ya sigue el patrón, False en caso contrario.
         """
         return self._get_prefix_from_filename(self.path) is not None
         
     def will_be_renamed(self, force):
-        """
-        Determines if the file should be renamed based on force flag, errors,
-        and whether the current filename matches the target format.
+        """Determina si el archivo debe ser renombrado según las reglas de negocio y flags.
+
+        Tiene en cuenta si hubo errores de parseo, si el flag 'force' está activo,
+        y si el archivo ya tiene el prefijo de fecha/remitente exacto para proteger
+        asuntos modificados manualmente.
+
+        Args:
+            force (bool): Si es True, fuerza el renombrado salvo que existan errores en el archivo.
+
+        Returns:
+            bool: True si el archivo debe ser renombrado, False en caso contrario.
         """
         if len(self.error_message)>0:
             return False
@@ -268,6 +370,17 @@ class EmlFile():
         return True
 
     def report(self, force, save):
+        """Genera una línea de informe formateada con colores ANSI para mostrar en consola.
+
+        Indica si se detectaron errores, si fue o será renombrado, o si se detectó el formato previo.
+
+        Args:
+            force (bool): Si se aplicó la opción de forzar renombrado.
+            save (bool): Si los cambios se están guardando en disco (True) o simulando (False).
+
+        Returns:
+            str: Cadena formateada con códigos de color ANSI lista para imprimir.
+        """
         if len(self.error_message)>0:
             aclaration=_("[Error detected. Won't be renamed]") if save is False else _("[Error detected. Not Renamed]") 
             return  colors.red(self.error_message)+  " " + colors.blue(aclaration)
@@ -279,9 +392,21 @@ class EmlFile():
             return colors.yellow(self.final_name())+  " " + colors.blue(aclaration)
             
     def final_path(self):
+        """Calcula la ruta completa final del archivo conservando su directorio padre original.
+
+        Returns:
+            Path: Objeto Path con la ruta completa y el nuevo nombre final.
+        """
         return Path(self.path).parent / self.final_name()
 
     def write(self, force):
+        """Renombra físicamente el archivo en el sistema de archivos si corresponde.
+
+        Utiliza final_path() para asegurar que el archivo se mantiene en su directorio correspondiente.
+
+        Args:
+            force (bool): Si es True, fuerza el renombrado incluso si ya tenía prefijo detectado.
+        """
         if self.will_be_renamed(force):
             rename(self.path, self.final_path())
             
