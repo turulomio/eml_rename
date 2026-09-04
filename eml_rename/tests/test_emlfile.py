@@ -56,3 +56,26 @@ def test_remove_illegal_chars():
     assert eml.remove_illegal_chars("") == ""
     assert eml.remove_illegal_chars("Test.") == "Test"
     assert eml.remove_illegal_chars("Hello: World?") == "Hello World"
+
+
+def test_get_mail_subject_with_ia_mocked(monkeypatch):
+    from unittest.mock import MagicMock
+    from eml_rename.emlfile import EmlFile
+
+    eml = EmlFile.__new__(EmlFile)
+    eml.body = "Sample email body content"
+    eml.google_api_key = "dummy-api-key"
+    eml.error_message = []
+    eml.ai_model = "gemini-2.5-flash"
+
+    mock_client = MagicMock()
+    mock_response = MagicMock()
+    mock_response.text = "Mocked AI Summary"
+    mock_client.models.generate_content.return_value = mock_response
+
+    monkeypatch.setattr("google.genai.Client", lambda api_key: mock_client)
+
+    subject = eml.get_mail_subject_with_ia()
+    assert subject == "Mocked AI Summary"
+    assert mock_client.models.generate_content.called
+    assert mock_client.models.generate_content.call_args.kwargs["model"] == "gemini-2.5-flash"

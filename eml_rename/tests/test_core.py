@@ -7,11 +7,9 @@ from eml_rename.core import eml_rename, main
 @fixture
 def test_fs(monkeypatch):
     """Set up a temporary directory with a file structure for each test and changes into it."""
-    # # Suppress print output for all tests using this fixture
-    # monkeypatch.setattr('builtins.print', lambda *args, **kwargs: None)
-    
-    # Force timezone to CET for testing purposes
-    
+    # Ensure tests are completely isolated and never call real external APIs
+    monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
+    monkeypatch.setattr("eml_rename.commons.get_google_api_key", lambda: None)
     monkeypatch.setattr("eml_rename.emlfile.get_system_timezone_name", lambda: "Europe/Berlin")
     test_dir = mkdtemp()
     monkeypatch.chdir(test_dir)
@@ -141,6 +139,9 @@ def test_main_ai_model_save_and_warning(tmp_path, monkeypatch, test_fs, capsys):
     main()
     captured = capsys.readouterr()
     assert "new-model" in captured.out
+
+    # Mock get_mail_subject_with_ia to ensure no AI call is made during --ai
+    monkeypatch.setattr("eml_rename.emlfile.EmlFile.get_mail_subject_with_ia", lambda self: "Mocked AI Subject")
 
     # Test warning when unavailable model is used with --ai
     monkeypatch.setattr('sys.argv', ['eml_rename', '--ai'])
