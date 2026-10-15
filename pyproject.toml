@@ -10,7 +10,6 @@ dependencies = [
     "chardet>=7.6.0",
     "tqdm>=4.70.0",
     "pydicts >=1.5.0",
-    "google-genai>=2.22.0",
 ]
 
 
@@ -21,11 +20,6 @@ eml_rename = "eml_rename.core:main"
 poethepoet = ">=0.48.0"
 pytest = ">=9.1.1"
 coverage = ">=7.16.0"
-
-[tool.pytest.ini_options]
-filterwarnings = [
-    "ignore::DeprecationWarning:google.genai.types",
-]
 
 [build-system]
 requires = ["poetry-core"]

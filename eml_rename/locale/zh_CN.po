@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: eml_rename\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-04 11:27+0200\n"
+"POT-Creation-Date: 2026-10-15 11:31+0200\n"
 "PO-Revision-Date: 2026-09-04 11:30+0200\n"
 "Last-Translator: Antigravity\n"
 "Language-Team: Chinese Simplified\n"
@@ -21,12 +21,6 @@ msgstr "您按下了 'Ctrl+C'，正在退出..."
 
 msgid "Developed by Mariano Muñoz 2022-{}"
 msgstr "由 Mariano Muñoz 开发 2022-{}"
-
-msgid "GOOGLE_API_KEY not found. Set it in environment or in ~/.config/eml-rename/config.ini"
-msgstr "未找到 GOOGLE_API_KEY。请在环境变量或 ~/.config/eml-rename/config.ini 中设置"
-
-msgid "The 'google-genai' package is not installed. Please run 'pip install google-genai' or 'poetry install'."
-msgstr "未安装 'google-genai' 包。请运行 'pip install google-genai' 或 'poetry install'。"
 
 msgid "Script renames all eml files in a directory using mail metadata "
 msgstr "本脚本使用邮件元数据重命名目录中的所有 eml 文件 "
@@ -44,34 +38,12 @@ msgstr "使用 'YYYYMMDD HHMM [发件人]' 格式时允许的最终名称最大�
 msgid "Without this parameter files won't be renamed. Script only pretend the result"
 msgstr "没有此参数，文件将不会被重命名。脚本仅模拟结果"
 
-msgid "Use Gemini AI to summarize email content as subject"
-msgstr "使用 Gemini AI 总结邮件内容作为主题"
-
-msgid "Delay between AI requests"
-msgstr "AI 请求之间的延迟"
-
-msgid "List available Gemini AI models for content generation and exit"
-msgstr "列出可用于内容生成的 Gemini AI 模型并退出"
-
-msgid "Specify Gemini AI model to use and save it to configfile"
-msgstr "指定要使用的 Gemini AI 模型并将其保存到配置文件"
-
-msgid "Available Gemini AI models:"
-msgstr "可用的 Gemini AI 模型："
-
-msgid "(configured)"
-msgstr "(已配置)"
-
-msgid "Error retrieving models"
-msgstr "获取模型时出错"
+msgid "Use Ollama AI with specified model to summarize email content as subject. Default: None (no AI)"
+msgstr ""
 
 #, python-brace-format
-msgid "AI model set to '{0}' and saved to configuration."
-msgstr "AI 模型已设置为 '{0}' 并保存到配置。"
-
-#, python-brace-format
-msgid "Warning: Configured model '{0}' is not available in the API. Defaulting to '{1}'."
-msgstr "警告：配置的模型 '{0}' 在 API 中不可用。默认使用 '{1}'。"
+msgid "Ollama server URL. Default: {0}"
+msgstr ""
 
 #, python-brace-format
 msgid "File or path not found: {0}"
@@ -114,3 +86,38 @@ msgstr "[已检测到格式。不会重命名]"
 
 msgid "[Format detected. Not renamed]"
 msgstr "[已检测到格式。未重命名]"
+
+#~ msgid "GOOGLE_API_KEY not found. Set it in environment or in ~/.config/eml-rename/config.ini"
+#~ msgstr "未找到 GOOGLE_API_KEY。请在环境变量或 ~/.config/eml-rename/config.ini 中设置"
+
+#~ msgid "The 'google-genai' package is not installed. Please run 'pip install google-genai' or 'poetry install'."
+#~ msgstr "未安装 'google-genai' 包。请运行 'pip install google-genai' 或 'poetry install'。"
+
+#~ msgid "Use Gemini AI to summarize email content as subject"
+#~ msgstr "使用 Gemini AI 总结邮件内容作为主题"
+
+#~ msgid "Delay between AI requests"
+#~ msgstr "AI 请求之间的延迟"
+
+#~ msgid "List available Gemini AI models for content generation and exit"
+#~ msgstr "列出可用于内容生成的 Gemini AI 模型并退出"
+
+#~ msgid "Specify Gemini AI model to use and save it to configfile"
+#~ msgstr "指定要使用的 Gemini AI 模型并将其保存到配置文件"
+
+#~ msgid "Available Gemini AI models:"
+#~ msgstr "可用的 Gemini AI 模型："
+
+#~ msgid "(configured)"
+#~ msgstr "(已配置)"
+
+#~ msgid "Error retrieving models"
+#~ msgstr "获取模型时出错"
+
+#, python-brace-format
+#~ msgid "AI model set to '{0}' and saved to configuration."
+#~ msgstr "AI 模型已设置为 '{0}' 并保存到配置。"
+
+#, python-brace-format
+#~ msgid "Warning: Configured model '{0}' is not available in the API. Defaulting to '{1}'."
+#~ msgstr "警告：配置的模型 '{0}' 在 API 中不可用。默认使用 '{1}'。"

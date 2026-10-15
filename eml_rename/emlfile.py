@@ -12,41 +12,44 @@ from email import message_from_string
 from email.parser import HeaderParser
 from email.utils import parsedate_to_datetime, parseaddr
 from email.header import decode_header
+import json
 from os import rename
 from pathlib import Path
+import urllib.error
+import urllib.request
 from pydicts import colors, casts
 from zoneinfo import ZoneInfo
-from .commons import get_google_api_key, get_system_timezone_name, get_ai_model, get_available_ai_models, _
+from .commons import DEFAULT_AI_URL, get_ai_url, get_system_timezone_name, _
 
 
 class EmlFile:
     """Represents and manages an individual email (.eml) file.
 
     Extracts essential metadata (date, sender, subject, and body), determines encoding,
-    supports AI-based subject generation (Google Gemini), and computes the standardized
+    supports AI-based subject generation (Ollama), and computes the standardized
     filename in the format 'YYYYMMDD HHMM [sender] subject.eml'.
     """
 
-    def __init__(self, path, length, ia=False, force=False, ia_delay=2, ai_model=None):
+    def __init__(self, path, length, ai=None, force=False, ai_url=DEFAULT_AI_URL, **kwargs):
         """Initialize an EmlFile instance and parse its metadata.
 
         Args:
             path (str | Path): Path to the .eml file to process.
             length (int): Maximum allowed length for the final filename.
-            ia (bool, optional): Indicates if the body should be summarized with AI. Defaults to False.
+            ai (str | None, optional): Ollama model name to use for subject summary. If None, AI is not used. Defaults to None.
             force (bool, optional): Forces renaming even if the file already has standard prefix. Defaults to False.
-            ia_delay (int, optional): Delay in seconds between consecutive AI requests. Defaults to 2.
-            ai_model (str, optional): Gemini model name to use. If None, reads from configuration.
+            ai_url (str, optional): Ollama server URL. Defaults to DEFAULT_AI_URL.
         """
         self.path=path
-        self.ia_requested=ia # Store if AI was requested
+        if ai is None and "ia" in kwargs:
+            ia_val = kwargs["ia"]
+            ai = ia_val if isinstance(ia_val, str) else None
+        self.ai = ai # Ollama model name or None
+        self.ai_url = ai_url
         self.length=length
         self.error_message=[]
-        self.force = force # Store the force parameter
-        self.ia_delay = ia_delay # Store AI delay
-        self.ai_model = ai_model or get_ai_model()
+        self.force = force
 
-        self.google_api_key=get_google_api_key()
         self.system_timezone=get_system_timezone_name()
         self.file_encoding=self.get_file_encoding()
         self.dt=self.get_mail_datetime()
@@ -54,8 +57,8 @@ class EmlFile:
         self.body=self.get_mail_body()
         
         # Determine if AI should be used for subject generation
-        # AI should only be used if it was requested AND the file is not already in the target format (or force is True)
-        if self.ia_requested and not (not self.force and self.filename_format_detected()):
+        # AI should only be used if it was requested (ai is not None) AND the file is not already in the target format (or force is True)
+        if self.ai and not (not self.force and self.filename_format_detected()):
             self.subject=self.get_mail_subject_with_ia()
         else:
             self.subject=self.get_mail_subject()
@@ -209,78 +212,55 @@ class EmlFile:
         
         return f"{date_part} {time_part} {from_part}"
 
-    def get_google_ia_models(self):
-        """Retrieve and print available Google Gemini AI models to console.
-
-        Returns:
-            list[str]: List of retrieved model names.
-        """
-        models = get_available_ai_models()
-        for m in models:
-            print(f"Found model: {m}")
-        return models
-
     def get_mail_subject_with_ia(self):
-        """Generate a concise subject summarizing the email body using Google Gemini API.
+        """Generate a concise subject summarizing the email body using Ollama API.
 
-        Sends a body sample (up to 3,000 characters) to the configured model with
-        low-token settings (temperature=0.1, thinking_budget=0, max_output_tokens=50).
-        Falls back to header subject if AI call fails.
+        Sends a body sample (up to 3,000 characters) to the Ollama server at self.ai_url
+        using self.ai model. Falls back to header subject if AI call fails.
 
         Returns:
             str: AI-generated summary or extracted subject on failure.
-
-        Raises:
-            Exception: If google-genai is not installed or GOOGLE_API_KEY is not found.
         """
         if casts.is_noe(self.body):
             return self.get_mail_subject()
-        try:
-            from google import genai
-            from google.genai import types
-        except ImportError:
-            raise Exception(_("The 'google-genai' package is not installed. Please run 'pip install google-genai' or 'poetry install'."))
 
         try:
-            if not self.google_api_key:
-                raise Exception(_("GOOGLE_API_KEY not found. Set it in environment or in ~/.config/eml-rename/config.ini"))
-            client = genai.Client(api_key=self.google_api_key)
-
-            # Limita la entrada a los primeros 3.000 caracteres para reducir el consumo de tokens
-            # en correos con hilos extensos, firmas largas o volcados de texto.
             body_sample = self.body[:3000] if len(self.body) > 3000 else self.body
-
-            config = types.GenerateContentConfig(
-                # max_output_tokens: Limita la respuesta a un máximo de 50 tokens (~150-200 caracteres),
-                # evitando explicaciones sobrantes o texto redundante.
-                max_output_tokens=50,
-                # temperature: Valor bajo (0.1) para priorizar respuestas deterministas, concisas y directas.
-                temperature=0.1,
-                # thinking_budget=0: Desactiva los tokens de razonamiento interno de Gemini 2.5 Flash,
-                # ahorrando cientos de tokens de 'thinking' innecesarios para un resumen simple.
-                thinking_config=types.ThinkingConfig(thinking_budget=0),
-                # disable=True: Desactiva el Automatic Function Calling (AFC) para eliminar la sobrecarga
-                # del SDK y suprimir avisos de consola al no utilizar herramientas/funciones.
-                automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
-                # system_instruction: Define el rol del modelo y las reglas de formato esperadas
-                # para que la respuesta sea directamente utilizable como nombre de archivo.
-                system_instruction=(
-                    "Resume el correo en una sola frase breve (máximo 80 caracteres) "
-                    "en español para usar como asunto de archivo. "
-                    "Esquemático, conciso, sin artículos innecesarios, sin punto final ni formato markdown."
-                ),
+            prompt = f"Correo:\n{body_sample}"
+            system_instruction = (
+                "Resume el correo en una sola frase breve (máximo 80 caracteres) "
+                "en español para usar como asunto de archivo. "
+                "Esquemático, conciso, sin artículos innecesarios, sin punto final ni formato markdown."
             )
-
-            response = client.models.generate_content(
-                model=self.ai_model,
-                contents=f"Correo:\n{body_sample}",
-                config=config,
+            url = f"{self.ai_url.rstrip('/')}/api/generate"
+            payload = {
+                "model": self.ai,
+                "prompt": prompt,
+                "system": system_instruction,
+                "stream": False,
+                "options": {
+                    "temperature": 0.1,
+                    "num_predict": 50,
+                },
+            }
+            data = json.dumps(payload).encode("utf-8")
+            req = urllib.request.Request(
+                url,
+                data=data,
+                headers={"Content-Type": "application/json"},
+                method="POST",
             )
-            if response and response.text:
-                return self.remove_illegal_chars(response.text)
+            with urllib.request.urlopen(req, timeout=60) as response:
+                result = json.loads(response.read().decode("utf-8"))
+                text = result.get("response", "").strip()
+                if text:
+                    return self.remove_illegal_chars(text)
+            return self.get_mail_subject()
         except Exception as e:
             self.error_message.append(f"AI Error: {str(e)}")
-            return self.get_mail_subject() # Fallback to non-AI subject if AI fails
+            return self.get_mail_subject()
+
+    get_mail_subject_with_ai = get_mail_subject_with_ia
 
     def final_name(self):
         """Compute the standardized final filename for the email.

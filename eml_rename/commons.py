@@ -1,7 +1,7 @@
 """Common utilities and configuration module for eml_rename.
 
-Provides helper functions for configuration management, API key retrieval,
-Google Gemini AI models discovery, system signal handling, and timezone detection.
+Provides helper functions for configuration management, Ollama AI URL retrieval,
+system signal handling, and timezone detection.
 """
 
 from configparser import ConfigParser
@@ -43,7 +43,7 @@ def argparse_epilog() -> str:
     """
     return _("Developed by Mariano Muñoz 2022-{}").format(__versiondate__.year)
 
-DEFAULT_AI_MODEL = "gemini-2.5-flash"
+DEFAULT_AI_URL = "http://localhost:11434"
 
 def get_config_path() -> Path:
     """Get the path to the application's configuration file.
@@ -65,85 +65,47 @@ def get_config() -> ConfigParser:
         config.read(config_path)
     return config
 
-def get_google_api_key() -> str | None:
-    """Retrieve Google API Key with fallback precedence.
+def get_ai_url() -> str:
+    """Retrieve the Ollama AI URL with fallback precedence.
 
     Priority order:
-    1. GOOGLE_API_KEY environment variable.
-    2. [auth] section in ~/.config/eml-rename/config.ini.
+    1. OLLAMA_HOST environment variable.
+    2. [ai] section 'url' in ~/.config/eml-rename/config.ini.
+    3. DEFAULT_AI_URL (http://localhost:11434).
 
     Returns:
-        str | None: The API key if found, or None otherwise.
+        str: Ollama server base URL.
     """
-    # 1. Environment variable priority
-    api_key = environ.get("GOOGLE_API_KEY")
-    if api_key:
-        return api_key
+    host = environ.get("OLLAMA_HOST")
+    if host and host.strip():
+        host = host.strip()
+        if not host.startswith("http://") and not host.startswith("https://"):
+            host = f"http://{host}"
+        return host
 
-    # 2. Look up ~/.config/eml-rename/config.ini
-    config = get_config()
-    if config.has_section("auth"):
-        return config.get("auth", "GOOGLE_API_KEY", fallback=None)
-    return None
-
-def get_ai_model() -> str:
-    """Get the configured AI model name from config.ini or return the default.
-
-    Returns:
-        str: Configured AI model name (defaults to DEFAULT_AI_MODEL).
-    """
     config = get_config()
     if config.has_section("ai"):
-        model = config.get("ai", "model_name", fallback=None)
-        if model and model.strip():
-            return model.strip()
-    return DEFAULT_AI_MODEL
+        url = config.get("ai", "url", fallback=None)
+        if url and url.strip():
+            return url.strip()
+    return DEFAULT_AI_URL
 
-def save_ai_model(model_name: str) -> None:
-    """Persist selected AI model name into config.ini.
+def save_ai_url(url: str) -> None:
+    """Persist Ollama AI server URL into config.ini.
 
     Creates required parent directories and the [ai] section if missing.
 
     Args:
-        model_name (str): Model name to save.
+        url (str): Ollama server URL to save.
     """
     config_path = get_config_path()
     config_path.parent.mkdir(parents=True, exist_ok=True)
     config = get_config()
     if not config.has_section("ai"):
         config.add_section("ai")
-    config.set("ai", "model_name", model_name.strip())
+    config.set("ai", "url", url.strip())
     with open(config_path, "w") as f:
         config.write(f)
-
-def get_available_ai_models() -> list[str]:
-    """Retrieve the list of Google Gemini models available for content generation.
-
-    Requires a configured API key and the 'google-genai' package.
-    Filters models that support the 'generateContent' action.
-
-    Returns:
-        list[str]: Clean model identifiers (without 'models/' prefix).
-
-    Raises:
-        Exception: If GOOGLE_API_KEY is not defined or google-genai is not installed.
-    """
-    api_key = get_google_api_key()
-    if not api_key:
-        raise Exception(_("GOOGLE_API_KEY not found. Set it in environment or in ~/.config/eml-rename/config.ini"))
-    try:
-        from google import genai
-    except ImportError:
-        raise Exception(_("The 'google-genai' package is not installed. Please run 'pip install google-genai' or 'poetry install'."))
-
-    client = genai.Client(api_key=api_key)
-    models = []
-    for m in client.models.list():
-        name = m.name.removeprefix("models/")
-        supported_actions = getattr(m, "supported_actions", None) or []
-        if not supported_actions or "generateContent" in supported_actions:
-            models.append(name)
-    return models
 
 def get_system_timezone_name() -> str:
     """Retrieve the host operating system's timezone name.

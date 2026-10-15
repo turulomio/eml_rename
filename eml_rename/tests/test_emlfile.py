@@ -15,13 +15,13 @@ def test_emlfile(test_fs, monkeypatch):
     # not a valid key for zoneinfo.ZoneInfo directly.
     monkeypatch.setattr("eml_rename.emlfile.get_system_timezone_name", lambda: "Europe/Berlin")
 
-    eml=EmlFile(test_fs["mail1.eml"], 140, ia=False, force=False, ia_delay=2) # Updated constructor call
-    assert eml.system_timezone=="Europe/Berlin" # Now asserts against the mocked canonical name
-    assert eml.file_encoding=="ascii"
-    assert eml.dt== datetime(2023, 9, 15, 9, 45, tzinfo=ZoneInfo(key='Europe/Berlin')) # Use canonical name
-    assert eml.from_=="jane.smith@example.org"
-    assert eml.subject=="Project Update EML Rename"
-    assert eml.final_name()=="20230915 0945 [jane.smith@example.org] Project Update EML Rename.eml"
+    eml = EmlFile(test_fs["mail1.eml"], 140, ai=None, force=False)
+    assert eml.system_timezone == "Europe/Berlin"
+    assert eml.file_encoding == "ascii"
+    assert eml.dt == datetime(2023, 9, 15, 9, 45, tzinfo=ZoneInfo(key='Europe/Berlin'))
+    assert eml.from_ == "jane.smith@example.org"
+    assert eml.subject == "Project Update EML Rename"
+    assert eml.final_name() == "20230915 0945 [jane.smith@example.org] Project Update EML Rename.eml"
     assert eml.will_be_renamed(False)
     assert eml.filename_format_detected() is False
     assert path.exists(test_fs["mail1.eml"])
@@ -38,7 +38,7 @@ def test_emlfile_utf7_and_parse_error(tmp_path, monkeypatch):
     eml_path = tmp_path / "utf7_test.eml"
     eml_path.write_bytes(b"From: test@example.com\r\nDate: Fri, 15 Sep 2023 09:45:00 +0200\r\nSubject: Test +ABC\r\n\r\nBody")
 
-    eml = EmlFile(str(eml_path), 140, ia=False, force=False, ia_delay=2)
+    eml = EmlFile(str(eml_path), 140, ai=None, force=False)
     # Ensure it parsed without UnboundLocalError or crash
     assert isinstance(eml.error_message, list)
     assert eml.subject == "Test +ABC"
@@ -59,23 +59,43 @@ def test_remove_illegal_chars():
 
 
 def test_get_mail_subject_with_ia_mocked(monkeypatch):
-    from unittest.mock import MagicMock
+    import io
+    import json
+    import urllib.request
     from eml_rename.emlfile import EmlFile
 
     eml = EmlFile.__new__(EmlFile)
     eml.body = "Sample email body content"
-    eml.google_api_key = "dummy-api-key"
     eml.error_message = []
-    eml.ai_model = "gemini-2.5-flash"
+    eml.ai = "llama3"
+    eml.ai_url = "http://localhost:11434"
 
-    mock_client = MagicMock()
-    mock_response = MagicMock()
-    mock_response.text = "Mocked AI Summary"
-    mock_client.models.generate_content.return_value = mock_response
+    captured_requests = []
 
-    monkeypatch.setattr("google.genai.Client", lambda api_key: mock_client)
+    def mock_urlopen(req, timeout=None):
+        captured_requests.append(req)
+        response_data = json.dumps({"response": "Resumen conciso del correo"}).encode("utf-8")
+        mock_resp = io.BytesIO(response_data)
+        return mock_resp
+
+    monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen)
 
     subject = eml.get_mail_subject_with_ia()
-    assert subject == "Mocked AI Summary"
-    assert mock_client.models.generate_content.called
-    assert mock_client.models.generate_content.call_args.kwargs["model"] == "gemini-2.5-flash"
+    assert subject == "Resumen conciso del correo"
+    assert len(captured_requests) == 1
+    req = captured_requests[0]
+    assert req.full_url == "http://localhost:11434/api/generate"
+    sent_payload = json.loads(req.data.decode("utf-8"))
+    assert sent_payload["model"] == "llama3"
+    assert "Sample email body content" in sent_payload["prompt"]
+    assert sent_payload["stream"] is False
+
+    # Test error handling fallback
+    def mock_urlopen_error(req, timeout=None):
+        raise urllib.error.URLError("Connection refused")
+
+    monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen_error)
+    monkeypatch.setattr(eml, "get_mail_subject", lambda: "Fallback Subject")
+    fallback = eml.get_mail_subject_with_ia()
+    assert fallback == "Fallback Subject"
+    assert any("AI Error" in err for err in eml.error_message)
