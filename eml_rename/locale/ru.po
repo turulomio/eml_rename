@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: eml_rename\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-15 11:31+0200\n"
-"PO-Revision-Date: 2026-09-04 11:30+0200\n"
+"POT-Creation-Date: 2026-10-15 14:15+0200\n"
+"PO-Revision-Date: 2026-10-15 14:15+0200\n"
 "Last-Translator: Antigravity\n"
 "Language-Team: Russian\n"
 "Language: ru\n"
@@ -39,11 +39,11 @@ msgid "Without this parameter files won't be renamed. Script only pretend the re
 msgstr "Без этого параметра файлы не будут переименованы. Скрипт только моделирует результат"
 
 msgid "Use Ollama AI with specified model to summarize email content as subject. Default: None (no AI)"
-msgstr ""
+msgstr "Использовать Ollama AI с указанной моделью для создания краткого содержания письма в качестве темы. По умолчанию: None (без ИИ)"
 
 #, python-brace-format
 msgid "Ollama server URL. Default: {0}"
-msgstr ""
+msgstr "URL-адрес сервера Ollama. По умолчанию: {0}"
 
 #, python-brace-format
 msgid "File or path not found: {0}"
@@ -87,37 +87,3 @@ msgstr "[Формат обнаружен. Не будет переименова
 msgid "[Format detected. Not renamed]"
 msgstr "[Формат обнаружен. Не переименован]"
 
-#~ msgid "GOOGLE_API_KEY not found. Set it in environment or in ~/.config/eml-rename/config.ini"
-#~ msgstr "GOOGLE_API_KEY не найден. Задайте его в переменных окружения или в ~/.config/eml-rename/config.ini"
-
-#~ msgid "The 'google-genai' package is not installed. Please run 'pip install google-genai' or 'poetry install'."
-#~ msgstr "Пакет 'google-genai' не установлен. Пожалуйста, выполните 'pip install google-genai' или 'poetry install'."
-
-#~ msgid "Use Gemini AI to summarize email content as subject"
-#~ msgstr "Использовать Gemini AI для создания краткого содержания письма в качестве темы"
-
-#~ msgid "Delay between AI requests"
-#~ msgstr "Задержка между запросами к ИИ"
-
-#~ msgid "List available Gemini AI models for content generation and exit"
-#~ msgstr "Показать доступные модели Gemini AI для генерации контента и выйти"
-
-#~ msgid "Specify Gemini AI model to use and save it to configfile"
-#~ msgstr "Указать модель Gemini AI и сохранить её в файл конфигурации"
-
-#~ msgid "Available Gemini AI models:"
-#~ msgstr "Доступные модели Gemini AI:"
-
-#~ msgid "(configured)"
-#~ msgstr "(настроено)"
-
-#~ msgid "Error retrieving models"
-#~ msgstr "Ошибка при получении моделей"
-
-#, python-brace-format
-#~ msgid "AI model set to '{0}' and saved to configuration."
-#~ msgstr "Модель ИИ установлена на '{0}' и сохранена в конфигурации."
-
-#, python-brace-format
-#~ msgid "Warning: Configured model '{0}' is not available in the API. Defaulting to '{1}'."
-#~ msgstr "Предупреждение: Настроенная модель '{0}' недоступна в API. Используется по умолчанию '{1}'."

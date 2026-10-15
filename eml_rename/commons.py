@@ -13,8 +13,8 @@ from pathlib import Path
 from sys import exit
 from time import tzset, tzname
 
-__version__ = '1.2.0'
-__versiondatetime__ = datetime(2026, 9, 4, 11, 30)
+__version__ = '1.3.0'
+__versiondatetime__ = datetime(2026, 10, 15, 13, 30)
 __versiondate__ = __versiondatetime__.date()
 
 try:
