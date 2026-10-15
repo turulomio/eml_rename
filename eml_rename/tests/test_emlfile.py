@@ -89,6 +89,7 @@ def test_get_mail_subject_with_ia_mocked(monkeypatch):
     assert sent_payload["model"] == "llama3"
     assert "Sample email body content" in sent_payload["prompt"]
     assert sent_payload["stream"] is False
+    assert sent_payload["think"] is False
 
     # Test error handling fallback
     def mock_urlopen_error(req, timeout=None):

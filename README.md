@@ -76,13 +76,42 @@ eml_rename --ai llama3 --save
 
 ## AI Configuration (Optional)
 
-To use the AI subject generation feature, an [Ollama](https://ollama.com/) instance is required. By default, `eml_rename` connects to `http://localhost:11434`.
+AI-powered subject generation is completely optional and powered locally or remotely by [Ollama](https://ollama.com/).
 
-### 1. Custom Ollama URL
+### 1. Requirements & Setup
+
+1. Install Ollama from [ollama.com](https://ollama.com/) or via your system's package manager.
+2. Start the Ollama daemon:
+   ```bash
+   ollama serve
+   ```
+3. Download a fast, lightweight model suitable for concise summaries:
+   ```bash
+   # Recommended lightweight models:
+   ollama pull gemma4:e2b
+   ollama pull qwen3.5:2b
+   ollama pull llama3.2:3b
+   ```
+
+### 2. Usage
+
+Pass the desired model name to `--ai`:
+```bash
+eml_rename --ai gemma4:e2b --save
+```
+
+> **Tip**: If files already have the prefix `YYYYMMDD HHMM [from]` from a previous run, use `--force` to re-summarize them with AI:
+> ```bash
+> eml_rename --ai gemma4:e2b --force --save
+> ```
+
+### 3. Configuring Ollama Server URL
+
+By default, `eml_rename` connects to `http://localhost:11434`. If Ollama is running on another port, machine, or container, configure the URL using one of the following methods (in order of priority):
 
 #### Option A: Command-Line Argument
 ```bash
-eml_rename --ai llama3 --ai_url http://192.168.1.50:11434 --save
+eml_rename --ai gemma4:e2b --ai_url http://192.168.1.50:11434 --save
 ```
 
 #### Option B: Environment Variable

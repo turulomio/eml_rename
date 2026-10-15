@@ -234,13 +234,20 @@ class EmlFile:
             )
             url = f"{self.ai_url.rstrip('/')}/api/generate"
             payload = {
+                # model: Ollama model name to use (e.g. 'gemma4:e2b', 'llama3.2:3b')
                 "model": self.ai,
+                # prompt: Email body snippet to be analyzed and summarized
                 "prompt": prompt,
+                # system: Instructs the model to output a concise, single-sentence file subject
                 "system": system_instruction,
+                # stream: False returns a single complete JSON object instead of chunked NDJSON
                 "stream": False,
+                # think: False disables internal reasoning tokens in thinking models (e.g. Gemma 4, Qwen),
+                # drastically speeding up generation and avoiding empty response fields
+                "think": False,
                 "options": {
+                    # temperature: Low value (0.1) for deterministic, direct, and factual summary
                     "temperature": 0.1,
-                    "num_predict": 50,
                 },
             }
             data = json.dumps(payload).encode("utf-8")
@@ -254,6 +261,10 @@ class EmlFile:
                 result = json.loads(response.read().decode("utf-8"))
                 text = result.get("response", "").strip()
                 if text:
+                    for prefix in ("asunto:", "asunto", "subject:"):
+                        if text.lower().startswith(prefix):
+                            text = text[len(prefix):].strip()
+                            break
                     return self.remove_illegal_chars(text)
             return self.get_mail_subject()
         except Exception as e:
