@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: eml_rename\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-04 11:27+0200\n"
+"POT-Creation-Date: 2026-10-15 11:31+0200\n"
 "PO-Revision-Date: 2026-09-04 11:30+0200\n"
 "Last-Translator: Antigravity\n"
 "Language-Team: Romanian\n"
@@ -21,12 +21,6 @@ msgstr "Ați apăsat 'Ctrl+C', se iese..."
 
 msgid "Developed by Mariano Muñoz 2022-{}"
 msgstr "Dezvoltat de Mariano Muñoz 2022-{}"
-
-msgid "GOOGLE_API_KEY not found. Set it in environment or in ~/.config/eml-rename/config.ini"
-msgstr "GOOGLE_API_KEY nu a fost găsită. Setați-o în mediu sau în ~/.config/eml-rename/config.ini"
-
-msgid "The 'google-genai' package is not installed. Please run 'pip install google-genai' or 'poetry install'."
-msgstr "Pachetul 'google-genai' nu este instalat. Rulați 'pip install google-genai' sau 'poetry install'."
 
 msgid "Script renames all eml files in a directory using mail metadata "
 msgstr "Scriptul redenumește toate fișierele eml dintr-un director folosind metadatele e-mailului "
@@ -44,34 +38,12 @@ msgstr "Lungimea maximă permisă pentru numele final folosind 'YYYYMMDD HHMM [d
 msgid "Without this parameter files won't be renamed. Script only pretend the result"
 msgstr "Fără acest parametru fișierele nu vor fi redenumite. Scriptul doar simulează rezultatul"
 
-msgid "Use Gemini AI to summarize email content as subject"
-msgstr "Utilizează IA Gemini pentru a rezuma conținutul e-mailului ca subiect"
-
-msgid "Delay between AI requests"
-msgstr "Întârziere între cererile IA"
-
-msgid "List available Gemini AI models for content generation and exit"
-msgstr "Listează modelele de IA Gemini disponibile pentru generare de conținut și ieși"
-
-msgid "Specify Gemini AI model to use and save it to configfile"
-msgstr "Specifică modelul de IA Gemini de utilizat și salvează-l în fișierul de configurare"
-
-msgid "Available Gemini AI models:"
-msgstr "Modele de IA Gemini disponibile:"
-
-msgid "(configured)"
-msgstr "(configurat)"
-
-msgid "Error retrieving models"
-msgstr "Eroare la preluarea modelelor"
+msgid "Use Ollama AI with specified model to summarize email content as subject. Default: None (no AI)"
+msgstr ""
 
 #, python-brace-format
-msgid "AI model set to '{0}' and saved to configuration."
-msgstr "Modelul IA a fost setat la '{0}' și salvat în configurație."
-
-#, python-brace-format
-msgid "Warning: Configured model '{0}' is not available in the API. Defaulting to '{1}'."
-msgstr "Avertisment: Modelul configurat '{0}' nu este disponibil în API. Se utilizează implicit '{1}'."
+msgid "Ollama server URL. Default: {0}"
+msgstr ""
 
 #, python-brace-format
 msgid "File or path not found: {0}"
@@ -114,3 +86,38 @@ msgstr "[Format detectat. Nu va fi redenumit]"
 
 msgid "[Format detected. Not renamed]"
 msgstr "[Format detectat. Neredenumit]"
+
+#~ msgid "GOOGLE_API_KEY not found. Set it in environment or in ~/.config/eml-rename/config.ini"
+#~ msgstr "GOOGLE_API_KEY nu a fost găsită. Setați-o în mediu sau în ~/.config/eml-rename/config.ini"
+
+#~ msgid "The 'google-genai' package is not installed. Please run 'pip install google-genai' or 'poetry install'."
+#~ msgstr "Pachetul 'google-genai' nu este instalat. Rulați 'pip install google-genai' sau 'poetry install'."
+
+#~ msgid "Use Gemini AI to summarize email content as subject"
+#~ msgstr "Utilizează IA Gemini pentru a rezuma conținutul e-mailului ca subiect"
+
+#~ msgid "Delay between AI requests"
+#~ msgstr "Întârziere între cererile IA"
+
+#~ msgid "List available Gemini AI models for content generation and exit"
+#~ msgstr "Listează modelele de IA Gemini disponibile pentru generare de conținut și ieși"
+
+#~ msgid "Specify Gemini AI model to use and save it to configfile"
+#~ msgstr "Specifică modelul de IA Gemini de utilizat și salvează-l în fișierul de configurare"
+
+#~ msgid "Available Gemini AI models:"
+#~ msgstr "Modele de IA Gemini disponibile:"
+
+#~ msgid "(configured)"
+#~ msgstr "(configurat)"
+
+#~ msgid "Error retrieving models"
+#~ msgstr "Eroare la preluarea modelelor"
+
+#, python-brace-format
+#~ msgid "AI model set to '{0}' and saved to configuration."
+#~ msgstr "Modelul IA a fost setat la '{0}' și salvat în configurație."
+
+#, python-brace-format
+#~ msgid "Warning: Configured model '{0}' is not available in the API. Defaulting to '{1}'."
+#~ msgstr "Avertisment: Modelul configurat '{0}' nu este disponibil în API. Se utilizează implicit '{1}'."

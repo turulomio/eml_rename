@@ -8,8 +8,7 @@ from eml_rename.core import eml_rename, main
 def test_fs(monkeypatch):
     """Set up a temporary directory with a file structure for each test and changes into it."""
     # Ensure tests are completely isolated and never call real external APIs
-    monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
-    monkeypatch.setattr("eml_rename.commons.get_google_api_key", lambda: None)
+    monkeypatch.delenv("OLLAMA_HOST", raising=False)
     monkeypatch.setattr("eml_rename.emlfile.get_system_timezone_name", lambda: "Europe/Berlin")
     test_dir = mkdtemp()
     monkeypatch.chdir(test_dir)
@@ -105,50 +104,70 @@ def test_main_with_no_args(monkeypatch, test_fs):
     assert path.exists("20240522 1530 [skeptic@example.com] Re La urgente realidad del cambio climatico.eml")
 
 
-def test_commons_ai_model_config(tmp_path, monkeypatch):
-    from eml_rename.commons import get_ai_model, save_ai_model, DEFAULT_AI_MODEL
+def test_commons_ai_url_config(tmp_path, monkeypatch):
+    from eml_rename.commons import get_ai_url, save_ai_url, DEFAULT_AI_URL
     mock_config = tmp_path / "config.ini"
     monkeypatch.setattr("eml_rename.commons.get_config_path", lambda: mock_config)
 
-    # Defaults to DEFAULT_AI_MODEL when no config exists
-    assert get_ai_model() == DEFAULT_AI_MODEL
+    # Defaults to DEFAULT_AI_URL when no config exists
+    assert get_ai_url() == DEFAULT_AI_URL
+    assert DEFAULT_AI_URL == "http://localhost:11434"
 
-    # Save model and verify it persists
-    save_ai_model("custom-model-1")
-    assert get_ai_model() == "custom-model-1"
+    # Priority 2: config.ini
+    save_ai_url("http://custom-server:11434")
+    assert get_ai_url() == "http://custom-server:11434"
     assert mock_config.exists()
 
+    # Priority 1: OLLAMA_HOST environment variable
+    monkeypatch.setenv("OLLAMA_HOST", "http://ollama-env:11434")
+    assert get_ai_url() == "http://ollama-env:11434"
 
-def test_main_ai_models(monkeypatch, test_fs, capsys):
-    monkeypatch.setattr("eml_rename.core.get_available_ai_models", lambda: ["model-a", "model-b"])
-    monkeypatch.setattr("eml_rename.core.get_ai_model", lambda: "model-a")
-    monkeypatch.setattr('sys.argv', ['eml_rename', '--ai_models'])
+    # Automatically prepends http:// if missing in OLLAMA_HOST
+    monkeypatch.setenv("OLLAMA_HOST", "192.168.1.100:11434")
+    assert get_ai_url() == "http://192.168.1.100:11434"
+
+
+def test_main_ai_args(monkeypatch, test_fs):
+    from unittest.mock import MagicMock
+    import eml_rename.core
+
+    mock_eml_rename = MagicMock()
+    monkeypatch.setattr(eml_rename.core, "eml_rename", mock_eml_rename)
+
+    # 1. Default: --ai is None (no AI), ai_url is default
+    monkeypatch.setattr('sys.argv', ['eml_rename'])
     main()
-    captured = capsys.readouterr()
-    assert "model-a" in captured.out
-    assert "model-b" in captured.out
+    assert mock_eml_rename.called
+    args, kwargs = mock_eml_rename.call_args
+    # signature: eml_rename(args.force, args.length, args.save, args.ai, args.ai_url, args.path)
+    assert args[3] is None  # ai
+    assert args[4] == "http://localhost:11434"  # ai_url
 
-
-def test_main_ai_model_save_and_warning(tmp_path, monkeypatch, test_fs, capsys):
-    mock_config = tmp_path / "config.ini"
-    monkeypatch.setattr("eml_rename.commons.get_config_path", lambda: mock_config)
-    monkeypatch.setattr("eml_rename.core.get_available_ai_models", lambda: ["gemini-2.5-flash"])
-
-    # Test setting model via CLI saves to config
-    monkeypatch.setattr('sys.argv', ['eml_rename', '--ai_model', 'new-model'])
+    # 2. Specifying --ai model
+    mock_eml_rename.reset_mock()
+    monkeypatch.setattr('sys.argv', ['eml_rename', '--ai', 'llama3'])
     main()
-    captured = capsys.readouterr()
-    assert "new-model" in captured.out
+    assert mock_eml_rename.called
+    args, kwargs = mock_eml_rename.call_args
+    assert args[3] == "llama3"
+    assert args[4] == "http://localhost:11434"
 
-    # Mock get_mail_subject_with_ia to ensure no AI call is made during --ai
-    monkeypatch.setattr("eml_rename.emlfile.EmlFile.get_mail_subject_with_ia", lambda self: "Mocked AI Subject")
-
-    # Test warning when unavailable model is used with --ai
-    monkeypatch.setattr('sys.argv', ['eml_rename', '--ai'])
+    # 3. Specifying --ai and --ai_url / --ai-url
+    mock_eml_rename.reset_mock()
+    monkeypatch.setattr('sys.argv', ['eml_rename', '--ai', 'mistral', '--ai-url', 'http://remote:11434'])
     main()
-    captured2 = capsys.readouterr()
-    assert "new-model" in captured2.out
-    assert "gemini-2.5-flash" in captured2.out
+    assert mock_eml_rename.called
+    args, kwargs = mock_eml_rename.call_args
+    assert args[3] == "mistral"
+    assert args[4] == "http://remote:11434"
+
+    mock_eml_rename.reset_mock()
+    monkeypatch.setattr('sys.argv', ['eml_rename', '--ai', 'gemma2', '--ai_url', 'http://custom:11434'])
+    main()
+    assert mock_eml_rename.called
+    args, kwargs = mock_eml_rename.call_args
+    assert args[3] == "gemma2"
+    assert args[4] == "http://custom:11434"
 
 
 def test_eml_rename_with_specific_file_and_directory(test_fs, monkeypatch):

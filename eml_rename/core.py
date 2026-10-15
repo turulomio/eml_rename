@@ -8,7 +8,7 @@ from argparse import ArgumentParser, RawTextHelpFormatter
 
 from eml_rename.commons import (
     signal_handler, __version__, __versiondate__, __versiondatetime__, _, argparse_epilog,
-    get_ai_model, save_ai_model, get_available_ai_models, DEFAULT_AI_MODEL
+    DEFAULT_AI_URL, get_ai_url
 )
 from eml_rename.emlfile import EmlFile
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -27,7 +27,7 @@ def main():
     """Command-line interface (CLI) entry point.
 
     Configures the SIGINT handler (Ctrl+C), parses command-line arguments,
-    manages AI model queries/selection, and delegates execution to eml_rename().
+    and delegates execution to eml_rename().
     """
     signal(SIGINT, signal_handler)
     default_length=140
@@ -37,44 +37,13 @@ def main():
     parser.add_argument('--force', help=_("Forces subject update when 'YYYYMMDD HHMM [from]' format is detected"), action="store_true", default=False)
     parser.add_argument('--length', help=_("Maximum length allowed to final name using 'YYYYMMDD HHMM [from]'. Default: {0}").format(default_length), action="store", default=default_length,  type=int)
     parser.add_argument('--save', help=_("Without this parameter files won't be renamed. Script only pretend the result"), action="store_true", default=False)
-    parser.add_argument('--ai', help=_("Use Gemini AI to summarize email content as subject"), action="store_true", default=False)
-    parser.add_argument('--ai_delay', help=_("Delay between AI requests"), action="store", type=int, default=2)
-    parser.add_argument('--ai_models', '--ai-models', help=_("List available Gemini AI models for content generation and exit"), action="store_true", default=False)
-    parser.add_argument('--ai_model', '--ai-model', help=_("Specify Gemini AI model to use and save it to configfile"), action="store", default=None, type=str)
+    parser.add_argument('--ai', help=_("Use Ollama AI with specified model to summarize email content as subject. Default: None (no AI)"), action="store", default=None, type=str)
+    parser.add_argument('--ai_url', '--ai-url', help=_("Ollama server URL. Default: {0}").format(DEFAULT_AI_URL), action="store", default=DEFAULT_AI_URL, type=str)
     args=parser.parse_args()
 
-    if args.ai_models:
-        try:
-            models = get_available_ai_models()
-            current_model = get_ai_model()
-            print(colors.blue(_("Available Gemini AI models:")))
-            for m in models:
-                current_indicator = f" {colors.green(_('(configured)'))}" if m == current_model else ""
-                print(f"  - {m}{current_indicator}")
-            return
-        except Exception as e:
-            print(colors.red(f"{_('Error retrieving models')}: {str(e)}"))
-            return
+    eml_rename(args.force, args.length, args.save, args.ai, args.ai_url, args.path)
 
-    if args.ai_model:
-        save_ai_model(args.ai_model)
-        print(colors.green(_("AI model set to '{0}' and saved to configuration.").format(args.ai_model)))
-
-    ai_model = args.ai_model or get_ai_model()
-    if args.ai:
-        try:
-            available_models = get_available_ai_models()
-            if ai_model not in available_models and f"models/{ai_model}" not in available_models:
-                print(colors.yellow(
-                    _("Warning: Configured model '{0}' is not available in the API. Defaulting to '{1}'.").format(ai_model, DEFAULT_AI_MODEL)
-                ))
-                ai_model = DEFAULT_AI_MODEL
-        except Exception:
-            pass
-
-    eml_rename(args.force, args.length, args.save, args.ai, args.ai_delay, ai_model, args.path)
-
-def eml_rename(force=False, length=140, save=False, ia=False, ia_delay=2, ai_model=None, path=None):
+def eml_rename(force=False, length=140, save=False, ai=None, ai_url=DEFAULT_AI_URL, path=None, **kwargs):
     """Process and rename email (.eml) files using metadata or AI summary.
 
     Enables renaming of individual files, lists of file paths, or all .eml files
@@ -85,14 +54,15 @@ def eml_rename(force=False, length=140, save=False, ia=False, ia_delay=2, ai_mod
         force (bool): If True, forces renaming even if standard prefix format is detected.
         length (int): Maximum total length of resulting filename. Defaults to 140.
         save (bool): If True, renames files on disk; if False, simulates only.
-        ia (bool): If True, uses Google Gemini to summarize email content as subject.
-        ia_delay (int): Delay in seconds between consecutive AI API calls.
-        ai_model (str | None): Gemini model name to use. If None, reads from configuration.
+        ai (str | None): Ollama model name to summarize email content as subject. If None, AI is not used.
+        ai_url (str): Ollama server base URL. Defaults to DEFAULT_AI_URL.
         path (str | Path | list[str | Path] | None): Path to file(s) or directory. If None, uses current working directory.
     """        
+    if ai is None and "ia" in kwargs:
+        ia_val = kwargs["ia"]
+        ai = ia_val if isinstance(ia_val, str) else None
+
     start=datetime.now()
-    if ai_model is None:
-        ai_model = get_ai_model()
     
     filenames=[]
     if path:
@@ -115,11 +85,10 @@ def eml_rename(force=False, length=140, save=False, ia=False, ia_delay=2, ai_mod
 
     
     futures=[]
-    with ThreadPoolExecutor(max_workers=1 if ia else cpu_count()+1) as executor:
+    with ThreadPoolExecutor(max_workers=1 if ai else cpu_count()+1) as executor:
             with tqdm(total=len(filenames), desc=_("Processing eml files")) as progress:
                 for filename in filenames:
-                        # Pass 'force', 'ia_delay', and 'ai_model' to EmlFile constructor
-                        future=executor.submit(EmlFile, filename, length, ia, force, ia_delay, ai_model)
+                        future=executor.submit(EmlFile, filename, length, ai, force, ai_url)
                         future.add_done_callback(lambda p: progress.update())
                         futures.append(future)
 

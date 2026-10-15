@@ -27,8 +27,8 @@ pip install eml_rename
 - **Directory Preservation**: Renamed files stay in their original folder, even when targeting files in subdirectories or absolute paths.
 - **Safe Simulation by Default**: Previews changes without renaming unless `--save` is specified.
 - **Protects Manual Edits**: If a file already has the `YYYYMMDD HHMM [From]` format, the script won't overwrite manual edits to the subject unless `--force` is used.
-- **Gemini AI Subject Summarization (`--ai`)**: Summarizes email content into concise subjects using Google Gemini models, optimized for low token consumption.
-- **Model Selection & Persistence**: List available models (`--ai_models`) and save your preferred model in configuration (`--ai_model MODEL`).
+- **Ollama AI Subject Summarization (`--ai MODEL`)**: Summarizes email content into concise subjects using local Ollama models (e.g., `llama3`, `mistral`, etc.).
+- **Configurable Ollama Server (`--ai_url`)**: Connect to your Ollama instance (defaults to `http://localhost:11434`).
 - **Concurrent Processing**: Uses multi-threading to process large archives fast.
 
 ## Usage & Examples
@@ -66,50 +66,65 @@ Set a custom length for generated filenames (default is 140 characters):
 eml_rename --length 160 --save
 ```
 
-### 6. AI-Powered Subject Summarization
-Use Gemini AI to summarize the email content into a concise subject:
+### 6. AI-Powered Subject Summarization (Ollama)
+Use Ollama AI to summarize the email content into a concise subject by specifying the model:
 ```bash
-eml_rename --ai --save
+eml_rename --ai llama3 --save
 ```
 
 ---
 
 ## AI Configuration (Optional)
 
-To use the AI subject generation feature (`--ai`), a Google Gemini API Key is required.
+AI-powered subject generation is completely optional and powered locally or remotely by [Ollama](https://ollama.com/).
 
-### 1. Set API Key
+### 1. Requirements & Setup
 
-#### Option A: Environment Variable
+1. Install Ollama from [ollama.com](https://ollama.com/) or via your system's package manager.
+2. Start the Ollama daemon:
+   ```bash
+   ollama serve
+   ```
+3. Download a fast, lightweight model suitable for concise summaries:
+   ```bash
+   # Recommended lightweight models:
+   ollama pull gemma4:e2b
+   ollama pull qwen3.5:2b
+   ollama pull llama3.2:3b
+   ```
+
+### 2. Usage
+
+Pass the desired model name to `--ai`:
 ```bash
-export GOOGLE_API_KEY='your_api_key_here'
+eml_rename --ai gemma4:e2b --save
 ```
 
-#### Option B: Configuration File
-Create a file in `~/.config/eml-rename/config.ini`:
+> **Tip**: If files already have the prefix `YYYYMMDD HHMM [from]` from a previous run, use `--force` to re-summarize them with AI:
+> ```bash
+> eml_rename --ai gemma4:e2b --force --save
+> ```
+
+### 3. Configuring Ollama Server URL
+
+By default, `eml_rename` connects to `http://localhost:11434`. If Ollama is running on another port, machine, or container, configure the URL using one of the following methods (in order of priority):
+
+#### Option A: Command-Line Argument
+```bash
+eml_rename --ai gemma4:e2b --ai_url http://192.168.1.50:11434 --save
+```
+
+#### Option B: Environment Variable
+```bash
+export OLLAMA_HOST='http://192.168.1.50:11434'
+```
+
+#### Option C: Configuration File
+Create or edit `~/.config/eml-rename/config.ini`:
 ```ini
-[auth]
-GOOGLE_API_KEY = your_api_key_here
-
 [ai]
-model_name = gemini-2.5-flash
-delay = 2
+url = http://192.168.1.50:11434
 ```
-
-### 2. Manage AI Models
-
-- **List available models**:
-  ```bash
-  eml_rename --ai_models
-  ```
-- **Change and save your preferred model**:
-  ```bash
-  eml_rename --ai_model gemini-2.5-flash
-  ```
-  *(This automatically saves the model to your `config.ini` so you don't need to specify it every time).*
-
-- **Automatic Fallback**:
-  If a configured model becomes unavailable or deprecated, `eml_rename` warns you and falls back automatically to `gemini-2.5-flash`.
 
 ---
 
@@ -123,9 +138,7 @@ delay = 2
 | `--save` | Actually rename files (default is simulation mode). |
 | `--force` | Force subject update even if `YYYYMMDD HHMM [From]` format is already detected. |
 | `--length LENGTH` | Maximum filename length (default: 140). |
-| `--ai` | Use Google Gemini AI to summarize email content as subject. |
-| `--ai_delay AI_DELAY` | Delay in seconds between AI requests (default: 2). |
-| `--ai_models`, `--ai-models` | List available Gemini models for content generation and exit. |
-| `--ai_model MODEL`, `--ai-model MODEL` | Specify Gemini model to use and persist it in configuration. |
+| `--ai MODEL` | Use Ollama AI with specified model to summarize email content as subject (default: None / no AI). |
+| `--ai_url URL`, `--ai-url URL` | Ollama server URL (default: `http://localhost:11434`). |
 | `--version` | Show program's version number and exit. |
 | `-h`, `--help` | Show help message and exit. |
